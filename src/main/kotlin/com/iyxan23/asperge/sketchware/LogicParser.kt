@@ -88,6 +88,8 @@ class LogicParser(content: String) {
 
         while (currentLine!!.trim().isNotEmpty()) {
             result.add(Json.decodeFromString(currentLine!!))
+
+            advance()
         }
 
         return result
