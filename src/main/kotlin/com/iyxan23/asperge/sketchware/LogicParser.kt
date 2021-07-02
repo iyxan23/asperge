@@ -57,7 +57,7 @@ class LogicParser(content: String) {
         var matcher = pattern.matcher(currentLine!!)
 
         while (matcher.find()) {
-            result.add(Variable(matcher.group(0).toInt(), matcher.group(1)))
+            result.add(Variable(matcher.group(1).toInt(), matcher.group(2)))
 
             advance()
             matcher = pattern.matcher(currentLine!!)
@@ -73,7 +73,7 @@ class LogicParser(content: String) {
         var matcher = pattern.matcher(currentLine!!)
 
         while (matcher.find()) {
-            result.add(Function(matcher.group(0), matcher.group(1)))
+            result.add(Function(matcher.group(1), matcher.group(2)))
 
             advance()
             matcher = pattern.matcher(currentLine!!)
