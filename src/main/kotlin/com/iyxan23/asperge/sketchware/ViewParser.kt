@@ -6,20 +6,9 @@ import com.iyxan23.asperge.sketchware.models.view.ViewSection
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class ViewParser(content: String) {
+class ViewParser(content: String) : Parser<View>(content) {
 
-    private var line = 0
-    private var lines = content.lines()
-
-    private var currentLine: String? = lines[line]
-
-    private fun advance() {
-        line++
-
-        currentLine = if (line >= lines.size) null else lines[line]
-    }
-
-    fun parse(): View {
+    override fun parse(): View {
         val sections = ArrayList<ViewSection>()
 
         while (currentLine != null) {

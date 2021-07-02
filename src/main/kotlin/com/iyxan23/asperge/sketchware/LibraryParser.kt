@@ -5,20 +5,9 @@ import com.iyxan23.asperge.sketchware.models.library.LibraryItem
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-class LibraryParser(content: String) {
+class LibraryParser(content: String) : Parser<Library>(content) {
 
-    private var line = 0
-    private var lines = content.lines()
-
-    private var currentLine: String? = lines[line]
-
-    private fun advance() {
-        line++
-
-        currentLine = if (line >= lines.size) null else lines[line]
-    }
-
-    fun parse(): Library {
+    override fun parse(): Library {
         val libraries = HashMap<String, LibraryItem>()
 
         val builtinLibraries = arrayOf("firebaseDB", "compat", "admob", "googleMap")

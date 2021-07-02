@@ -7,20 +7,9 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.util.regex.Pattern
 
-class LogicParser(content: String) {
+class LogicParser(content: String) : Parser<Logic>(content) {
 
-    private var line = 0
-    private var lines = content.lines()
-
-    private var currentLine: String? = lines[line]
-
-    private fun advance() {
-        line++
-
-        currentLine = if (line >= lines.size) null else lines[line]
-    }
-
-    fun parse(): Logic {
+    override fun parse(): Logic {
         val sections = ArrayList<BaseLogicSection>()
 
         while (currentLine != null) {
