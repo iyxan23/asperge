@@ -8,6 +8,7 @@ import kotlinx.serialization.Serializable
 data class Block(
     val color: Int,
     val id: String,
+    val nextBlock: Int,
     val opCode: String,
     val parameters: List<String>,
 
