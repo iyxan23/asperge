@@ -1,6 +1,9 @@
 package com.iyxan23.asperge.sketchware.models.file
 
+import kotlinx.serialization.Serializable
+
 // Can be either activity or CustomView, for some reason
+@Serializable
 data class FileItem(
     val fileName: String,
     val fileType: Int,
