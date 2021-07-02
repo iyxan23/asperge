@@ -4,5 +4,5 @@ class EventsLogicSection(
     name: String,
     contextName: String,
 
-    val components: List<Component>
+    val events: List<Event>
 ) : BaseLogicSection(name, contextName)

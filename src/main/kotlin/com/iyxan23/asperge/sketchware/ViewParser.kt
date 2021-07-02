@@ -1,14 +1,10 @@
 package com.iyxan23.asperge.sketchware
 
-import com.iyxan23.asperge.sketchware.models.Logic
 import com.iyxan23.asperge.sketchware.models.View
-import com.iyxan23.asperge.sketchware.models.logic.*
-import com.iyxan23.asperge.sketchware.models.logic.Function
 import com.iyxan23.asperge.sketchware.models.view.ViewItem
 import com.iyxan23.asperge.sketchware.models.view.ViewSection
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
-import java.util.regex.Pattern
 
 class ViewParser(content: String) {
 

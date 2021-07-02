@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ImageConfig(
+    val resName: String? = null,
     val rotate: Int,
     val scaleType: String,
 )
