@@ -40,22 +40,12 @@ class LogicParser(content: String) {
 
         advance()
 
-        when (contextName) {
-            "java_var" ->
-                return VariablesLogicSection(name, contextName, parseVariables())
-
-            "java_components" ->
-                return ComponentsLogicSection(name, contextName, parseSerializable())
-
-            "java_events" ->
-                return EventsLogicSection(name, contextName, parseSerializable())
-
-            "java_func" ->
-                return FunctionsLogicSection(name, contextName, parseFunctions())
-
-            else -> {
-                TODO()
-            }
+        return when (contextName) {
+            "java_var"          -> VariablesLogicSection    (name, contextName, parseVariables())
+            "java_components"   -> ComponentsLogicSection   (name, contextName, parseSerializable())
+            "java_events"       -> EventsLogicSection       (name, contextName, parseSerializable())
+            "java_func"         -> FunctionsLogicSection    (name, contextName, parseFunctions())
+            else                -> BlocksLogicSection       (name, contextName, parseSerializable())
         }
     }
 
