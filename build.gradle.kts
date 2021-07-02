@@ -2,6 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     kotlin("jvm") version "1.4.32"
+    kotlin("plugin.serialization") version "1.5.0"
 }
 
 group = "com.iyxan23"
@@ -12,7 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation("com.beust:klaxon:5.5")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.2.1")
 
     testImplementation(kotlin("test-junit5"))
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.6.0")
