@@ -1,9 +1,10 @@
 package com.iyxan23.asperge.sketchware
 
 import com.iyxan23.asperge.sketchware.models.Logic
-import com.iyxan23.asperge.sketchware.models.logic.BaseLogicSection
-import com.iyxan23.asperge.sketchware.models.logic.Variable
-import com.iyxan23.asperge.sketchware.models.logic.VariablesLogicSection
+import com.iyxan23.asperge.sketchware.models.logic.*
+import com.iyxan23.asperge.sketchware.models.logic.Function
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.util.regex.Pattern
 
 class LogicParser(content: String) {
@@ -40,25 +41,22 @@ class LogicParser(content: String) {
         advance()
 
         when (contextName) {
-            "java_var" -> return VariablesLogicSection(name, contextName, parseVariables())
-            "java_components" -> {
+            "java_var" ->
+                return VariablesLogicSection(name, contextName, parseVariables())
 
-            }
+            "java_components" ->
+                return ComponentsLogicSection(name, contextName, parseSerializable())
 
-            "java_events" -> {
+            "java_events" ->
+                return EventsLogicSection(name, contextName, parseSerializable())
 
-            }
-
-            "java_func" -> {
-
-            }
+            "java_func" ->
+                return FunctionsLogicSection(name, contextName, parseFunctions())
 
             else -> {
-
+                TODO()
             }
         }
-
-        TODO()
     }
 
     private fun parseVariables(): List<Variable> {
@@ -72,6 +70,33 @@ class LogicParser(content: String) {
 
             advance()
             matcher = pattern.matcher(currentLine!!)
+        }
+
+        return result
+    }
+
+    private fun parseFunctions(): List<Function> {
+        val result = ArrayList<Function>()
+
+        val pattern = Pattern.compile("(\\w+):(.+)")
+        var matcher = pattern.matcher(currentLine!!)
+
+        while (matcher.find()) {
+            result.add(Function(matcher.group(0), matcher.group(1)))
+
+            advance()
+            matcher = pattern.matcher(currentLine!!)
+        }
+
+        return result
+    }
+
+    // Used to parse serializable objects, such as Component, Event, etc
+    private inline fun <reified T> parseSerializable(): List<T> {
+        val result = ArrayList<T>()
+
+        while (currentLine!!.trim().isNotEmpty()) {
+            result.add(Json.decodeFromString(currentLine!!))
         }
 
         return result
