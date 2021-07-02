@@ -5,12 +5,16 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Project(
+    @SerialName("sc_id")
+    val id: String,
+
+    @SerialName("custom_icon")
     val customIcon: Boolean,
 
-    @SerialName("app_name")
+    @SerialName("my_app_name")
     val appName: String,
 
-    @SerialName("my_sc_package_name")
+    @SerialName("my_sc_pkg_name")
     val packageName: String,
 
     @SerialName("my_ws_name")
@@ -25,11 +29,25 @@ data class Project(
     @SerialName("my_sc_reg_dt")
     val dateCrated: String,
 
-    val colorPrimary: Int,
-    val colorPrimaryDark: Int,
-    val colorAccent: Int,
-    val colorControlHighlight: Int,
-    val colorControlNormal: Int,
+    // colors =============================
 
+    @SerialName("color_primary")
+    val colorPrimary: Double,
+
+    @SerialName("color_primary_dark")
+    val colorPrimaryDark: Double,
+
+    @SerialName("color_accent")
+    val colorAccent: Double,
+
+    @SerialName("color_control_highlight")
+    val colorControlHighlight: Double,
+
+    @SerialName("color_control_normal")
+    val colorControlNormal: Double,
+
+    // colors =============================
+
+    @SerialName("sketchware_ver")
     val sketchwareVer: Int,
 )
