@@ -28,7 +28,7 @@ object Unpacker {
 
             null ->
                 throw RuntimeException(
-                    "The specified project file has an unknown file format, supported type(s): sketchub (.sh)"
+                    "The specified project file has an unknown file extension, supported type(s): sketchub (.sh)"
                 )
         }
     }
