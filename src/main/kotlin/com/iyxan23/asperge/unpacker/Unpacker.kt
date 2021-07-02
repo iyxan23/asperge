@@ -1,7 +1,7 @@
 package com.iyxan23.asperge.unpacker
 
 import com.iyxan23.asperge.Decryptor
-import com.iyxan23.asperge.sketchware.SketchwareProject
+import com.iyxan23.asperge.sketchware.RawSketchwareProject
 import com.iyxan23.asperge.unpacker.models.SketchubDataItem
 import com.iyxan23.asperge.unpacker.models.SketchubIndex
 import kotlinx.serialization.decodeFromString
@@ -22,7 +22,7 @@ object Unpacker {
 
     private fun getProjectType(path: String): ProjectType? = typeExtensions[File(path).extension]
 
-    fun unpack(path: String): SketchwareProject {
+    fun unpack(path: String): RawSketchwareProject {
         when (getProjectType(path)) {
             ProjectType.SKETCHUB -> return unpackSketchub(path)
 
@@ -33,7 +33,7 @@ object Unpacker {
         }
     }
 
-    private fun unpackSketchub(path: String): SketchwareProject {
+    private fun unpackSketchub(path: String): RawSketchwareProject {
         val zip = ZipFile(path)
 
         // Get index.json
@@ -69,7 +69,7 @@ object Unpacker {
         }
 
         // And finally just return the sketchware project
-        return SketchwareProject(
+        return RawSketchwareProject(
             projectFiles["logic"    ]!!,
             projectFiles["view"     ]!!,
             projectFiles["file"     ]!!,

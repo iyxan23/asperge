@@ -1,6 +1,6 @@
 package com.iyxan23.asperge.sketchware
 
-data class SketchwareProject(
+data class RawSketchwareProject(
     val logic: String,
     val view: String,
     val file: String,
