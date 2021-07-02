@@ -14,9 +14,10 @@ class LogicParser(content: String) {
 
     private var currentLine: String? = lines[line]
 
-    fun advance() {
+    private fun advance() {
         line++
-        currentLine = lines[line]
+
+        currentLine = if (line >= lines.size) null else lines[line]
     }
 
     fun parse(): Logic {
