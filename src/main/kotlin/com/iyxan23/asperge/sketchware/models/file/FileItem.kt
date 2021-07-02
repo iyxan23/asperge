@@ -1,4 +1,4 @@
-package com.iyxan23.asperge.swproject.file
+package com.iyxan23.asperge.sketchware.models.file
 
 // Can be either activity or CustomView, for some reason
 data class FileItem(

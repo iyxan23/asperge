@@ -1,4 +1,4 @@
-package com.iyxan23.asperge
+package com.iyxan23.asperge.sketchware
 
 data class SketchwareProject(
     val logic: String,

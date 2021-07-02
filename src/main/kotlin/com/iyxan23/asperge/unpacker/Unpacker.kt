@@ -1,7 +1,7 @@
 package com.iyxan23.asperge.unpacker
 
 import com.iyxan23.asperge.Decryptor
-import com.iyxan23.asperge.SketchwareProject
+import com.iyxan23.asperge.sketchware.SketchwareProject
 import com.iyxan23.asperge.unpacker.models.SketchubDataItem
 import com.iyxan23.asperge.unpacker.models.SketchubIndex
 import kotlinx.serialization.decodeFromString

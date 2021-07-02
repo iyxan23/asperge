@@ -1,4 +1,4 @@
-package com.iyxan23.asperge.swproject.view
+package com.iyxan23.asperge.sketchware.models.view
 
 import kotlinx.serialization.Serializable
 

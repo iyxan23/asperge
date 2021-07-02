@@ -1,4 +1,4 @@
-package com.iyxan23.asperge.swproject.logic
+package com.iyxan23.asperge.sketchware.models.logic
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

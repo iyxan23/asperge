@@ -1,6 +1,6 @@
-package com.iyxan23.asperge.swproject.logic
+package com.iyxan23.asperge.sketchware.models.logic
 
-class EventsLogicSection(
+class ComponentsLogicSection(
     name: String,
     contextName: String,
 

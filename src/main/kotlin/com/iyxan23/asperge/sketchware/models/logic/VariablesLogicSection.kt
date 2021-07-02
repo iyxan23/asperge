@@ -1,4 +1,4 @@
-package com.iyxan23.asperge.swproject.logic
+package com.iyxan23.asperge.sketchware.models.logic
 
 class VariablesLogicSection(
     name: String,
