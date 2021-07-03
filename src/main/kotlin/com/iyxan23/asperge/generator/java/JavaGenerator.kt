@@ -19,7 +19,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class %s extends AppCompatActivity {
 
-    %s
+%s
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,8 +55,10 @@ public class %s extends AppCompatActivity {
         }
 
         globalVariables.forEach {
-            variables += "private ${getVarType(it.type)} ${it.name};"
+            variables += "\nprivate ${getVarType(it.type)} ${it.name};"
         }
+
+        variables = variables.trim().prependIndent(" ".repeat(4))
 
         return initialTemplate.format(className, variables, generateCode(blocksSections[0]))
     }
@@ -73,8 +75,10 @@ public class %s extends AppCompatActivity {
 
     private fun getVarType(type: Int): String {
         return when (type) {
+            0 -> "boolean"
             1 -> "int"
-            else -> ""
+            2 -> "String"
+            else -> "Unknown Type $type"
         }
     }
 }
