@@ -33,6 +33,8 @@ public class %s extends AppCompatActivity {
     val events = ArrayList<Event>()
     val blocksSections = ArrayList<BlocksLogicSection>()
 
+    var onCreateSection: BlocksLogicSection? = null
+
     fun generate(): String {
         var className = "MainActivity"
 
@@ -49,25 +51,37 @@ public class %s extends AppCompatActivity {
                 }
 
                 is BlocksLogicSection -> {
-                    blocksSections.add(section)
+                    if (section.contextName == "java_onCreate_initializeLogic") {
+                        onCreateSection = section
+                    } else {
+                        blocksSections.add(section)
+                    }
                 }
             }
         }
 
         globalVariables.forEach {
-            variables += "\nprivate ${getVarType(it.type)} ${it.name};"
+            variables += "\nprivate ${genVariableDeclaration(it.type, it.name)}"
         }
 
         variables = variables.trim().prependIndent(" ".repeat(4))
 
+        blocksSections.forEach {
+            println("${it.name} ${it.contextName}")
+        }
+
         return initialTemplate.format(className, variables, generateCode(blocksSections[0]))
     }
 
-    private fun generateCode(section: BlocksLogicSection, idOffset: Int = 0): String {
+    // Used to blacklist blocks that is parsed as a parameter
+    private val blacklistedBlocks = ArrayList<String>()
+
+    private fun generateCode(section: BlocksLogicSection, idOffset: Int = 0, addSemicolon: Boolean = true): String {
         val result = StringBuilder()
 
         section.blocks.values.forEach { block ->
             if (block.id.toInt() < idOffset) return@forEach
+            if (blacklistedBlocks.contains(block.id)) return@forEach
 
             val parsedParams = ArrayList<String>()
 
@@ -75,24 +89,26 @@ public class %s extends AppCompatActivity {
                 if (param.startsWith("@")) {
                     // this is a block parameter
                     val blockId = param.substring(1, param.length)
-                    parsedParams.add(generateCode(section, blockId.toInt()))
+                    parsedParams.add(generateCode(section, blockId.toInt(), false))
+
+                    blacklistedBlocks.add(blockId)
 
                 } else {
                     parsedParams.add(param)
                 }
             }
 
-            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams))
+            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams, block.spec, addSemicolon))
         }
 
-        return result.toString().trim().prependIndent(" ".repeat(8))
+        return result.toString().trim()
     }
 
-    private fun getVarType(type: Int): String {
+    private fun genVariableDeclaration(type: Int, name: String): String {
         return when (type) {
-            0 -> "boolean"
-            1 -> "int"
-            2 -> "String"
+            0 -> "boolean $name = false;"
+            1 -> "int $name = 0;"
+            2 -> "String $name = \"\";"
             else -> "Unknown Type $type"
         }
     }
