@@ -49,5 +49,5 @@ data class Project(
     // colors =============================
 
     @SerialName("sketchware_ver")
-    val sketchwareVer: Int,
+    val sketchwareVer: Float,
 )

@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class LayoutConfig(
     val backgroundColor: Int,
+    val backgroundResource: String? = null,
     val gravity: Int,
     val height: Int,
     val layoutGravity: Int,

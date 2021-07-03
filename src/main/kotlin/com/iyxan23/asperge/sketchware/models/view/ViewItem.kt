@@ -22,6 +22,7 @@ data class ViewItem(
     val max: Int,
     val parent: String? = null, // For some reasons, fab doesn't have parent and preId
     val parentType: Int,
+    val preParent: String? = null,
     val preId: String? = null,
     val preIndex: Int,
     val preParentType: Int,
