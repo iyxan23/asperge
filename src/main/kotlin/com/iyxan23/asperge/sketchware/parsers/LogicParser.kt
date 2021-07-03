@@ -36,8 +36,16 @@ class LogicParser(content: String) : Parser<Logic>(content) {
             "java_components"   -> ComponentsLogicSection   (name, contextName, parseSerializable())
             "java_events"       -> EventsLogicSection       (name, contextName, parseSerializable())
             "java_func"         -> FunctionsLogicSection    (name, contextName, parseFunctions())
-            else                -> BlocksLogicSection       (name, contextName, parseSerializable())
+            else                -> BlocksLogicSection       (name, contextName, parseBlocks())
         }
+    }
+
+    private fun parseBlocks(): HashMap<String, Block> {
+        val blocks: List<Block> = parseSerializable()
+        val result = HashMap<String, Block>()
+
+        blocks.forEach { block -> result[block.id] = block }
+        return result
     }
 
     private fun parseVariables(): List<Variable> {

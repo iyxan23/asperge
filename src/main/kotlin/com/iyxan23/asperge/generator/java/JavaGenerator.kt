@@ -66,7 +66,7 @@ public class %s extends AppCompatActivity {
     private fun generateCode(section: BlocksLogicSection): String {
         val result = StringBuilder()
 
-        section.blocks.forEach { block ->
+        section.blocks.values.forEach { block ->
             result.appendLine(BlocksDictionary.generateCode(block.opCode, block.parameters))
         }
 

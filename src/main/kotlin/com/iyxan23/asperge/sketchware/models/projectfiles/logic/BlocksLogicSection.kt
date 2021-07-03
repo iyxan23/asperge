@@ -4,6 +4,7 @@ class BlocksLogicSection(
     name: String,
     contextName: String,
 
-    val blocks: List<Block>
+    // HashMap of <blockId: String, block: Block>
+    val blocks: HashMap<String, Block>
 
 ) : BaseLogicSection(name, contextName)
