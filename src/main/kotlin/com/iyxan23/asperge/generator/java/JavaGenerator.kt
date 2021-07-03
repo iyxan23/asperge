@@ -97,11 +97,16 @@ public class %s extends AppCompatActivity {
     // Used to blacklist blocks that is parsed as a parameter
     private val blacklistedBlocks = ArrayList<String>()
 
-    private fun generateCode(section: BlocksLogicSection, idOffset: Int = 0, addSemicolon: Boolean = true): String {
+    private fun generateCode(section: BlocksLogicSection, idOffset: Int = -1, addSemicolon: Boolean = true): String {
         val result = StringBuilder()
+        var skipOffset = idOffset != -1
 
         section.blocks.values.forEach { block ->
-            if (block.id.toInt() < idOffset) return@forEach
+            if (skipOffset) {
+                if (block.id.toInt() == idOffset) skipOffset = false
+                else return@forEach
+            }
+
             if (blacklistedBlocks.contains(block.id)) return@forEach
 
             val parsedParams = ArrayList<String>()
@@ -142,6 +147,7 @@ public class %s extends AppCompatActivity {
 
     private fun generateEvent(event: Event): String {
         val blocks = eventsBlocks["java_${event.targetId}_${event.eventName}"]
+            ?: return "// Cannot find blocks of $event".prependIndent(" ".repeat(8))
 
         return when (event.eventName) {
             "onClick" -> {
@@ -149,7 +155,7 @@ public class %s extends AppCompatActivity {
 
 """
 ${event.targetId}.setOnClickListener(new View.OnClickListener() {
-${generateCode(blocks!!).prependIndent(" ".repeat(4))}
+${generateCode(blocks).prependIndent(" ".repeat(4))}
 });
 """
             }
