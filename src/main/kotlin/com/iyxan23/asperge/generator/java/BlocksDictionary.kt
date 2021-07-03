@@ -2,8 +2,6 @@ package com.iyxan23.asperge.generator.java
 
 object BlocksDictionary {
     fun generateCode(opCode: String, parameters: List<String>, spec: String, addSemicolon: Boolean = true): String {
-        println("$opCode: $parameters")
-
         if (opCode == "addSourceDirectly") return parameters[0]
 
         return (when (opCode) {
@@ -17,7 +15,7 @@ object BlocksDictionary {
 
             "finishActivity" -> "finishActivity()"
 
-            else -> "Unknown opcode $opCode"
+            else -> "// Unknown opcode $opCode"
 
         }) + if (addSemicolon) ";" else ""
     }
