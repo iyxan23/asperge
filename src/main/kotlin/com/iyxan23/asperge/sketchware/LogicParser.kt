@@ -32,6 +32,7 @@ class LogicParser(content: String) : Parser<Logic>(content) {
 
         return when (contextName) {
             "java_var"          -> VariablesLogicSection    (name, contextName, parseVariables())
+            "java_list"         -> ListLogicSection         (name, contextName, parseLists())
             "java_components"   -> ComponentsLogicSection   (name, contextName, parseSerializable())
             "java_events"       -> EventsLogicSection       (name, contextName, parseSerializable())
             "java_func"         -> FunctionsLogicSection    (name, contextName, parseFunctions())
@@ -47,6 +48,22 @@ class LogicParser(content: String) : Parser<Logic>(content) {
 
         while (matcher.find()) {
             result.add(Variable(matcher.group(1).toInt(), matcher.group(2)))
+
+            advance()
+            matcher = pattern.matcher(currentLine!!)
+        }
+
+        return result
+    }
+
+    private fun parseLists(): List<ListLogic> {
+        val result = ArrayList<ListLogic>()
+
+        val pattern = Pattern.compile("([0-9]+):(\\w+)")
+        var matcher = pattern.matcher(currentLine!!)
+
+        while (matcher.find()) {
+            result.add(ListLogic(matcher.group(1).toInt(), matcher.group(2)))
 
             advance()
             matcher = pattern.matcher(currentLine!!)
