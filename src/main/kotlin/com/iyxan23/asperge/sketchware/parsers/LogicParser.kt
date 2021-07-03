@@ -40,9 +40,9 @@ class LogicParser(content: String) : Parser<Logic>(content) {
         }
     }
 
-    private fun parseBlocks(): HashMap<String, Block> {
+    private fun parseBlocks(): LinkedHashMap<String, Block> {
         val blocks: List<Block> = parseSerializable()
-        val result = HashMap<String, Block>()
+        val result = LinkedHashMap<String, Block>()
 
         blocks.forEach { block -> result[block.id] = block }
         return result
