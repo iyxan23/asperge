@@ -15,8 +15,7 @@ class JavaGenerator(
     val initialTemplate =
 """package ${project.packageName};
 
-import androidx.appcompat.app.AppCompatActivity;
-
+%s
 public class %s extends AppCompatActivity {
 
 %s
@@ -25,7 +24,11 @@ public class %s extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 %s
+        registerEvents();
     }
+
+    private void registerEvents() {
+%s    }
 }
 """
 
@@ -33,7 +36,11 @@ public class %s extends AppCompatActivity {
     val events = ArrayList<Event>()
     val blocksSections = ArrayList<BlocksLogicSection>()
 
+    val eventsBlocks = HashMap<String, BlocksLogicSection>()
+
     var onCreateSection: BlocksLogicSection? = null
+
+    val neededImports = HashSet<String>().apply { add("androidx.appcompat.app.AppCompatActivity") }
 
     fun generate(): String {
         var className = "MainActivity"
@@ -54,7 +61,7 @@ public class %s extends AppCompatActivity {
                     if (section.contextName == "java_onCreate_initializeLogic") {
                         onCreateSection = section
                     } else {
-                        blocksSections.add(section)
+                        eventsBlocks[section.contextName] = section
                     }
                 }
             }
@@ -70,7 +77,21 @@ public class %s extends AppCompatActivity {
             println("${it.name} ${it.contextName}")
         }
 
-        return initialTemplate.format(className, variables, generateCode(blocksSections[0]))
+        return initialTemplate.format(
+            generateImports(),
+            className,
+            variables,
+            generateCode(onCreateSection!!).prependIndent(" ".repeat(8)),
+            generateEvents(events)
+        )
+    }
+
+    private fun generateImports(): String {
+        val result = StringBuilder()
+        neededImports.forEach {
+            result.appendLine("import $it;")
+        }
+        return result.toString()
     }
 
     // Used to blacklist blocks that is parsed as a parameter
@@ -111,5 +132,25 @@ public class %s extends AppCompatActivity {
             2 -> "String $name = \"\";"
             else -> "Unknown Type $type"
         }
+    }
+
+    private fun generateEvents(events: List<Event>): String {
+        val result = StringBuilder()
+        events.forEach { result.appendLine(generateEvent(it)) }
+        return result.toString()
+    }
+
+    private fun generateEvent(event: Event): String {
+        val blocks = eventsBlocks["java_${event.targetId}_${event.eventName}"]
+
+        return (when (event.eventName) {
+            "onClick" ->
+"""${event.targetId}.setOnClickListener(new View.OnClickListener() {
+${generateCode(blocks!!).prependIndent(" ".repeat(4))}
+});"""
+
+            else -> """// Unknown event ${event.eventName}"""
+
+        }).prependIndent(" ".repeat(8))
     }
 }
