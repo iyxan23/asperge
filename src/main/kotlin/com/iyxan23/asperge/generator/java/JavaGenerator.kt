@@ -143,14 +143,18 @@ public class %s extends AppCompatActivity {
     private fun generateEvent(event: Event): String {
         val blocks = eventsBlocks["java_${event.targetId}_${event.eventName}"]
 
-        return (when (event.eventName) {
-            "onClick" ->
-"""${event.targetId}.setOnClickListener(new View.OnClickListener() {
+        return when (event.eventName) {
+            "onClick" -> {
+                neededImports.add("android.view.View")
+
+"""
+${event.targetId}.setOnClickListener(new View.OnClickListener() {
 ${generateCode(blocks!!).prependIndent(" ".repeat(4))}
-});"""
+});
+"""
+            }
 
             else -> """// Unknown event ${event.eventName}"""
-
-        }).prependIndent(" ".repeat(8))
+        }.prependIndent(" ".repeat(8))
     }
 }
