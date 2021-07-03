@@ -12,8 +12,8 @@ class JavaGenerator(
     var variables = ""
     var onCreate = ""
 
-    val initialTemplate = """
-package ${project.packageName};
+    val initialTemplate =
+"""package ${project.packageName};
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -63,11 +63,26 @@ public class %s extends AppCompatActivity {
         return initialTemplate.format(className, variables, generateCode(blocksSections[0]))
     }
 
-    private fun generateCode(section: BlocksLogicSection): String {
+    private fun generateCode(section: BlocksLogicSection, idOffset: Int = 0): String {
         val result = StringBuilder()
 
         section.blocks.values.forEach { block ->
-            result.appendLine(BlocksDictionary.generateCode(block.opCode, block.parameters))
+            if (block.id.toInt() < idOffset) return@forEach
+
+            val parsedParams = ArrayList<String>()
+
+            block.parameters.forEach { param ->
+                if (param.startsWith("@")) {
+                    // this is a block parameter
+                    val blockId = param.substring(1, param.length)
+                    parsedParams.add(generateCode(section, blockId.toInt()))
+
+                } else {
+                    parsedParams.add(param)
+                }
+            }
+
+            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams))
         }
 
         return result.toString().trim().prependIndent(" ".repeat(8))
