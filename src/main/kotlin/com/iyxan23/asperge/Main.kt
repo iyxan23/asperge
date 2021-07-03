@@ -1,6 +1,6 @@
 package com.iyxan23.asperge
 
-import com.iyxan23.asperge.sketchware.*
+import com.iyxan23.asperge.sketchware.parsers.*
 import com.iyxan23.asperge.unpacker.Unpacker
 
 fun main(args: Array<String>) {

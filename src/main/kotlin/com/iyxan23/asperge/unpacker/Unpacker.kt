@@ -1,7 +1,7 @@
 package com.iyxan23.asperge.unpacker
 
 import com.iyxan23.asperge.Decryptor
-import com.iyxan23.asperge.sketchware.RawSketchwareProject
+import com.iyxan23.asperge.sketchware.models.RawSketchwareProject
 import com.iyxan23.asperge.unpacker.models.SketchubDataItem
 import com.iyxan23.asperge.unpacker.models.SketchubIndex
 import kotlinx.serialization.decodeFromString
@@ -70,12 +70,12 @@ object Unpacker {
 
         // And finally just return the sketchware project
         return RawSketchwareProject(
-            projectFiles["logic"    ]!!,
-            projectFiles["view"     ]!!,
-            projectFiles["file"     ]!!,
-            projectFiles["library"  ]!!,
-            projectFiles["resource" ]!!,
-            projectFiles["project"  ]!!,
+            projectFiles["logic"]!!,
+            projectFiles["view"]!!,
+            projectFiles["file"]!!,
+            projectFiles["library"]!!,
+            projectFiles["resource"]!!,
+            projectFiles["project"]!!,
         )
     }
 }

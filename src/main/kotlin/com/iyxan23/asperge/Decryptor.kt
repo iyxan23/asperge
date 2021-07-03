@@ -10,7 +10,7 @@ object Decryptor {
     private val sketchwarePass = "sketchwaresecure".toByteArray()
 
     init {
-        sketchwareCipherInstance.init(2, SecretKeySpec(sketchwarePass, "AES"), IvParameterSpec(sketchwarePass));
+        sketchwareCipherInstance.init(2, SecretKeySpec(sketchwarePass, "AES"), IvParameterSpec(sketchwarePass))
     }
 
     fun decrypt(content: ByteArray): String = String(sketchwareCipherInstance.doFinal(content))
