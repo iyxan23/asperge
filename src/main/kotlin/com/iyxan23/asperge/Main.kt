@@ -10,5 +10,6 @@ fun main(args: Array<String>) {
     println(ViewParser(unpacked.view).parse())
     println(FileParser(unpacked.file).parse())
     println(LibraryParser(unpacked.library).parse())
+    println(ResourceParser(unpacked.resource).parse())
     println(ProjectParser(unpacked.project).parse())
 }
