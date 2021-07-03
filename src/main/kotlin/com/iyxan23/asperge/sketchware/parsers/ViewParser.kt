@@ -37,9 +37,17 @@ class ViewParser(content: String) : Parser<View>(content) {
         val result = ArrayList<ViewItem>()
 
         while (currentLine!!.trim().isNotEmpty()) {
-            result.add(Json.decodeFromString(currentLine!!))
+            try {
+                result.add(Json.decodeFromString(currentLine!!))
 
-            advance()
+                advance()
+
+            } catch (e: Exception) {
+                if (e.message!!.contains("Encountered an unknown key 'convert'."))
+                    throw RuntimeException("Modded sketchware projects are not supported yet")
+
+                else throw e
+            }
         }
 
         return result
