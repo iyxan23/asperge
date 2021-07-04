@@ -51,7 +51,7 @@ public class %s extends AppCompatActivity {
 
     private var onCreateSection: BlocksLogicSection? = null
 
-    private val neededImports = HashSet<String>().apply { add("androidx.appcompat.app.AppCompatActivity") }
+    private val neededImports = HashSet<String>().apply { add("androidx.appcompat.app.AppCompatActivity"); add("android.view.*") }
 
     fun generate(): String {
         var className = "MainActivity"
@@ -118,9 +118,9 @@ public class %s extends AppCompatActivity {
     private fun generateImports(): String {
         return StringBuilder().apply {
             neededImports.forEach {
-                appendLine("import $it;\n")
+                appendLine("import $it;")
             }
-        }.toString().trim()
+        }.toString().trim() + "\n"
     }
 
     // Used to blacklist blocks that is parsed as a parameter
