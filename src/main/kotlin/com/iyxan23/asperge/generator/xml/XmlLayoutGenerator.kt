@@ -90,8 +90,33 @@ class XmlLayoutGenerator(
     }
 
     private fun generateXml(node: ViewNode): Node {
-        return xml(getViewName(node.view.type)) {
-            attribute("id", "+@/${node.view.id}")
+        val viewName = getViewName(node.view.type)
+        return xml(viewName) {
+            attribute("android:id", "+@/${node.view.id}")
+
+            if (node.view.enabled == 0) {
+                attribute("android:enabled", "false")
+            }
+
+            when (viewName) {
+                "LinearLayout" -> {
+                    attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
+                }
+
+                "ScrollView" -> {
+                    attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
+                }
+
+                "Button" -> {
+                    attribute("android:text", node.view.text.text)
+                    attribute("android:textSize", "${node.view.text.textSize}sp")
+                }
+
+                "TextView" -> {
+                    attribute("android:text", node.view.text.text)
+                    attribute("android:textSize", "${node.view.text.textSize}sp")
+                }
+            }
 
             for (child in node.childs) {
                 addNode(generateXml(child))

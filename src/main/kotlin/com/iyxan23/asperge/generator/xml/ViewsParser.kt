@@ -6,6 +6,7 @@ import com.iyxan23.asperge.sketchware.models.projectfiles.view.ViewSection
 class ViewsParser(
     private val section: ViewSection
 ) {
+    // https://stackoverflow.com/questions/18017869/build-tree-array-from-flat-array-in-javascript
     fun parse(): ArrayList<ViewNode> {
         val map = HashMap<String, Int>()
         val roots = ArrayList<ViewNode>()
