@@ -33,10 +33,13 @@ public class %s extends AppCompatActivity {
 """
 
     val globalVariables = ArrayList<Variable>()
+
     val events = ArrayList<Event>()
+    val eventsBlocks = HashMap<String, BlocksLogicSection>()
     val blocksSections = ArrayList<BlocksLogicSection>()
 
-    val eventsBlocks = HashMap<String, BlocksLogicSection>()
+    val components = ArrayList<Component>()
+    val lists = ArrayList<ListLogic>()
 
     var onCreateSection: BlocksLogicSection? = null
 
@@ -49,13 +52,10 @@ public class %s extends AppCompatActivity {
             className = section.name
 
             when (section) {
-                is VariablesLogicSection -> {
-                    globalVariables.addAll(section.variables)
-                }
-
-                is EventsLogicSection -> {
-                    events.addAll(section.events)
-                }
+                is VariablesLogicSection    -> globalVariables.addAll(section.variables)
+                is EventsLogicSection       -> events.addAll(section.events)
+                is ComponentsLogicSection   -> components.addAll(section.components)
+                is ListLogicSection         -> lists.addAll(section.lists)
 
                 is BlocksLogicSection -> {
                     if (section.contextName == "java_onCreate_initializeLogic") {
@@ -67,9 +67,11 @@ public class %s extends AppCompatActivity {
             }
         }
 
-        globalVariables.forEach {
-            variables += "\nprivate ${genVariableDeclaration(it.type, it.name)}"
-        }
+        globalVariables.forEach { variables += "\nprivate ${genVariableDeclaration(it.type, it.name)}" }
+        variables += "\n"
+        lists.forEach { variables += "\nprivate ${genListDeclaration(it.type, it.name)}" }
+        variables += "\n"
+        // components.forEach { variables += "\n// $it" }
 
         variables = variables.trim().prependIndent(" ".repeat(4))
 
@@ -135,7 +137,16 @@ public class %s extends AppCompatActivity {
             0 -> "boolean $name = false;"
             1 -> "int $name = 0;"
             2 -> "String $name = \"\";"
-            else -> "Unknown Type $type"
+            else -> "// Unknown variable type $type"
+        }
+    }
+
+    private fun genListDeclaration(type: Int, name: String): String {
+        return when (type) {
+            0 -> "ArrayList<Boolean> $name = new ArrayList();"
+            1 -> "ArrayList<Integer> $name = new ArrayList();"
+            2 -> "ArrayList<String> $name = new ArrayList();"
+            else -> "// Unknown variable type $type"
         }
     }
 
