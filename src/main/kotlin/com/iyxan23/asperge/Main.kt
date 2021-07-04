@@ -19,11 +19,24 @@ fun main(args: Array<String>) {
         activities[section.name]!!.add(section)
     }
 
+    val viewIdTypes = ArrayList<Pair<List<String>, List<String>>>()
+
     parsed.view.sections.forEach {
-        println(XmlLayoutGenerator(it, parsed.resource, parsed.file, parsed.project).generate())
+        val generator = XmlLayoutGenerator(it, parsed.resource, parsed.file, parsed.project)
+
+        println(generator.generate())
+
+        viewIdTypes.add(Pair(generator.getViewIDs(), generator.getViewTypes()))
     }
 
-    activities.keys.forEach { key ->
-        println(JavaGenerator(activities[key] as List<BaseLogicSection>, parsed.project).generate())
+    activities.keys.forEachIndexed { index, key ->
+        println(
+            JavaGenerator(
+                activities[key] as List<BaseLogicSection>,
+                viewIdTypes[index].first,
+                viewIdTypes[index].second,
+                parsed.project
+            ).generate()
+        )
     }
 }

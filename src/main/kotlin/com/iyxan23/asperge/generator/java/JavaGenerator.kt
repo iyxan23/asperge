@@ -5,14 +5,13 @@ import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
 import java.lang.StringBuilder
 
 class JavaGenerator(
-    val sections: List<BaseLogicSection>,
+    private val sections: List<BaseLogicSection>,
+    private val viewIDs: List<String>,
+    private val viewTypes: List<String>,
     project: Project
 ) {
 
-    var variables = ""
-    var onCreate = ""
-
-    val initialTemplate =
+    private val initialTemplate =
 """package ${project.packageName};
 
 %s
@@ -23,8 +22,16 @@ public class %s extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        bindViews();
+
+        // onCreate logic
 %s
+
         registerEvents();
+    }
+
+    private void bindViews() {
+%s
     }
 
     private void registerEvents() {
@@ -32,18 +39,19 @@ public class %s extends AppCompatActivity {
 }
 """
 
-    val globalVariables = ArrayList<Variable>()
+    private val globalVariables = ArrayList<Variable>()
+    private var classScope = ""
 
-    val events = ArrayList<Event>()
-    val eventsBlocks = HashMap<String, BlocksLogicSection>()
-    val blocksSections = ArrayList<BlocksLogicSection>()
+    private val events = ArrayList<Event>()
+    private val eventsBlocks = HashMap<String, BlocksLogicSection>()
+    private val blocksSections = ArrayList<BlocksLogicSection>()
 
-    val components = ArrayList<Component>()
-    val lists = ArrayList<ListLogic>()
+    private val components = ArrayList<Component>()
+    private val lists = ArrayList<ListLogic>()
 
-    var onCreateSection: BlocksLogicSection? = null
+    private var onCreateSection: BlocksLogicSection? = null
 
-    val neededImports = HashSet<String>().apply { add("androidx.appcompat.app.AppCompatActivity") }
+    private val neededImports = HashSet<String>().apply { add("androidx.appcompat.app.AppCompatActivity") }
 
     fun generate(): String {
         var className = "MainActivity"
@@ -67,13 +75,16 @@ public class %s extends AppCompatActivity {
             }
         }
 
-        globalVariables.forEach { variables += "\nprivate ${genVariableDeclaration(it.type, it.name)}" }
-        variables += "\n"
-        lists.forEach { variables += "\nprivate ${genListDeclaration(it.type, it.name)}" }
-        variables += "\n"
+        classScope += "// Global variables\n"
+        globalVariables.forEach { classScope += "private ${genVariableDeclaration(it.type, it.name)}\n" }
+
+        classScope += "// Lists global variables\n"
+        lists.forEach { classScope += "private ${genListDeclaration(it.type, it.name)}\n" }
         // components.forEach { variables += "\n// $it" }
 
-        variables = variables.trim().prependIndent(" ".repeat(4))
+        generateViewIdsDeclarations()
+
+        classScope = classScope.trim().prependIndent(" ".repeat(4))
 
         blocksSections.forEach {
             println("${it.name} ${it.contextName}")
@@ -82,18 +93,34 @@ public class %s extends AppCompatActivity {
         return initialTemplate.format(
             generateImports(),
             className,
-            variables,
+            classScope,
             generateCode(onCreateSection!!).prependIndent(" ".repeat(8)),
+            generateViewIds().prependIndent(" ".repeat(8)),
             generateEvents(events)
         )
     }
 
-    private fun generateImports(): String {
-        val result = StringBuilder()
-        neededImports.forEach {
-            result.appendLine("import $it;")
+    private fun generateViewIds(): String {
+        return StringBuilder().apply {
+            viewIDs.forEach { id ->
+                append("$id = findViewById(R.id.$id);\n")
+            }
+        }.toString().trim()
+    }
+
+    private fun generateViewIdsDeclarations() {
+        classScope += "\n// View IDs declarations\n"
+        viewIDs.forEachIndexed { index, id ->
+            classScope += "private ${viewTypes[index]} $id;\n"
         }
-        return result.toString()
+    }
+
+    private fun generateImports(): String {
+        return StringBuilder().apply {
+            neededImports.forEach {
+                appendLine("import $it;\n")
+            }
+        }.toString().trim()
     }
 
     // Used to blacklist blocks that is parsed as a parameter

@@ -147,4 +147,12 @@ class XmlLayoutGenerator(
             else -> "Unknown"
         }
     }
+
+    fun getViewIDs(): List<String> {
+        return ArrayList<String>().apply { layout.views.forEach { add(it.id) } }
+    }
+
+    fun getViewTypes(): List<String> {
+        return ArrayList<String>().apply { layout.views.forEach { add(getViewName(it.type)) } }
+    }
 }
