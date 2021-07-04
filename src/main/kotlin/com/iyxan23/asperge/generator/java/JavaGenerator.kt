@@ -40,7 +40,7 @@ public class %s extends AppCompatActivity {
 """
 
     private val globalVariables = ArrayList<Variable>()
-    private var classScope = ""
+    private var classScopeCode = ""
 
     private val events = ArrayList<Event>()
     private val eventsBlocks = HashMap<String, BlocksLogicSection>()
@@ -75,28 +75,32 @@ public class %s extends AppCompatActivity {
             }
         }
 
-        classScope += "// Global variables\n"
-        globalVariables.forEach { classScope += "private ${genVariableDeclaration(it.type, it.name)}\n" }
+        classScopeCode += "// Global variables\n"
+        globalVariables.forEach { classScopeCode += "private ${genVariableDeclaration(it.type, it.name)}\n" }
 
-        classScope += "// Lists global variables\n"
-        lists.forEach { classScope += "private ${genListDeclaration(it.type, it.name)}\n" }
+        classScopeCode += "// Lists global variables\n"
+        lists.forEach { classScopeCode += "private ${genListDeclaration(it.type, it.name)}\n" }
+
         // components.forEach { variables += "\n// $it" }
 
         generateViewIdsDeclarations()
 
-        classScope = classScope.trim().prependIndent(" ".repeat(4))
+        classScopeCode = classScopeCode.trim().prependIndent(" ".repeat(4))
 
-        blocksSections.forEach {
-            println("${it.name} ${it.contextName}")
-        }
+        // Generate codes
+        val onCreateCode = generateCode(onCreateSection!!).prependIndent(" ".repeat(8))
+        val viewIds = generateViewIds().prependIndent(" ".repeat(8))
+        val events = generateEvents(events)
+        val imports = generateImports()
 
+        // Then apply it to the initial template
         return initialTemplate.format(
-            generateImports(),
+            imports,
             className,
-            classScope,
-            generateCode(onCreateSection!!).prependIndent(" ".repeat(8)),
-            generateViewIds().prependIndent(" ".repeat(8)),
-            generateEvents(events)
+            classScopeCode,
+            onCreateCode,
+            viewIds,
+            events
         )
     }
 
@@ -109,9 +113,9 @@ public class %s extends AppCompatActivity {
     }
 
     private fun generateViewIdsDeclarations() {
-        classScope += "\n// View IDs declarations\n"
+        classScopeCode += "\n// View IDs declarations\n"
         viewIDs.forEachIndexed { index, id ->
-            classScope += "private ${viewTypes[index]} $id;\n"
+            classScopeCode += "private ${viewTypes[index]} $id;\n"
         }
     }
 
@@ -188,15 +192,12 @@ public class %s extends AppCompatActivity {
             ?: return "// Cannot find blocks of $event".prependIndent(" ".repeat(8))
 
         return when (event.eventName) {
-            "onClick" -> {
-                neededImports.add("android.view.View")
-
+            "onClick" ->
 """
 ${event.targetId}.setOnClickListener(new View.OnClickListener() {
 ${generateCode(blocks).prependIndent(" ".repeat(4))}
 });
 """
-            }
 
             else -> """// Unknown event ${event.eventName}"""
         }.prependIndent(" ".repeat(8))
