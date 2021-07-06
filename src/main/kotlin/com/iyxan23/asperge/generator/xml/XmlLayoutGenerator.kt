@@ -3,10 +3,8 @@ package com.iyxan23.asperge.generator.xml
 import com.iyxan23.asperge.sketchware.models.projectfiles.File
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.Resource
-import com.iyxan23.asperge.sketchware.models.projectfiles.View
 import com.iyxan23.asperge.sketchware.models.projectfiles.view.*
 import org.redundent.kotlin.xml.Node
-import org.redundent.kotlin.xml.parse
 import org.redundent.kotlin.xml.xml
 
 class XmlLayoutGenerator(
@@ -36,7 +34,7 @@ class XmlLayoutGenerator(
                 16777215,
                 null,
                 0,
-                -2,
+                -1,
                 0,
                 0,
                 0,
