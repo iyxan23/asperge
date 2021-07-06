@@ -35,16 +35,20 @@ public class %s extends AppCompatActivity {
     }
 
     private void registerEvents() {
-%s    }
+%s
+    }
+
+%s
 }
 """
 
     private val globalVariables = ArrayList<Variable>()
     private var classScopeCode = ""
+    private var footerCode = ""
 
     private val events = ArrayList<Event>()
     private val eventsBlocks = HashMap<String, BlocksLogicSection>()
-    private val blocksSections = ArrayList<BlocksLogicSection>()
+    private var eventsCode = ""
 
     private val components = ArrayList<Component>()
     private val lists = ArrayList<ListLogic>()
@@ -90,7 +94,7 @@ public class %s extends AppCompatActivity {
         // Generate codes
         val onCreateCode = generateCode(onCreateSection!!).prependIndent(" ".repeat(8))
         val viewIds = generateViewIds().prependIndent(" ".repeat(8))
-        val events = generateEvents(events)
+        generateEvents(events)
         val imports = generateImports()
 
         // Then apply it to the initial template
@@ -100,7 +104,8 @@ public class %s extends AppCompatActivity {
             classScopeCode,
             onCreateCode,
             viewIds,
-            events
+            eventsCode,
+            footerCode
         )
     }
 
@@ -181,25 +186,28 @@ public class %s extends AppCompatActivity {
         }
     }
 
-    private fun generateEvents(events: List<Event>): String {
-        val result = StringBuilder()
-        events.forEach { result.appendLine(generateEvent(it)) }
-        return result.toString()
+    private fun generateEvents(events: List<Event>) {
+        events.forEach { generateEvent(it) }
     }
 
-    private fun generateEvent(event: Event): String {
+    private fun generateEvent(event: Event) {
         val blocks = eventsBlocks["java_${event.targetId}_${event.eventName}"]
-            ?: return "// Cannot find blocks of $event".prependIndent(" ".repeat(8))
 
-        return when (event.eventName) {
+        if (blocks == null) {
+            eventsCode += "// Cannot find blocks of $event".prependIndent(" ".repeat(8))
+            return
+        }
+
+        when (event.eventName) {
             "onClick" ->
+                eventsCode +=
 """
 ${event.targetId}.setOnClickListener(new View.OnClickListener() {
 ${generateCode(blocks).prependIndent(" ".repeat(4))}
 });
-"""
+""".prependIndent(" ".repeat(8))
 
-            else -> """// Unknown event ${event.eventName}"""
-        }.prependIndent(" ".repeat(8))
+            else -> eventsCode += """// Unknown event ${event.eventName}"""
+        }
     }
 }
