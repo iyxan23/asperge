@@ -1,6 +1,5 @@
 package com.iyxan23.asperge.generator.java
 
-import com.iyxan23.asperge.generator.java.builder.JavaCodeBuilder
 import com.iyxan23.asperge.generator.java.builder.buildJavaCode
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.BaseLogicSection
@@ -12,6 +11,13 @@ class NewJavaGenerator(
     project: Project
 ) {
     fun generate(): String {
-        return buildJavaCode { TODO() }
+        return buildJavaCode(
+            "public",
+            "MainActivity",
+            "extends AppCompatActivity",
+            "com.test.helloworld"
+        ) {
+            TODO()
+        }
     }
 }
