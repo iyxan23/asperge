@@ -94,28 +94,38 @@ class XmlLayoutGenerator(
         return xml(viewName) {
             attribute("android:id", "+@/${node.view.id}")
 
-            if (node.view.enabled == 0) {
-                attribute("android:enabled", "false")
-            }
+            attribute("android:layout_height", resolveLayoutValue(node.view.layout.height))
+            attribute("android:layout_width", resolveLayoutValue(node.view.layout.width))
 
             when (viewName) {
-                "LinearLayout" -> {
+                "LinearLayout" ->
                     attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
-                }
 
-                "ScrollView" -> {
+                "ScrollView" ->
                     attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
-                }
 
                 "Button" -> {
                     attribute("android:text", node.view.text.text)
                     attribute("android:textSize", "${node.view.text.textSize}sp")
+                    attribute("android:textColor", "#%X".format(node.view.text.textColor))
                 }
 
                 "TextView" -> {
                     attribute("android:text", node.view.text.text)
                     attribute("android:textSize", "${node.view.text.textSize}sp")
                 }
+            }
+
+            if (node.view.scaleX != 1f) {
+                attribute("android:scaleX", "${node.view.scaleX}")
+            }
+
+            if (node.view.scaleY != 1f) {
+                attribute("android:scaleY", "${node.view.scaleX}")
+            }
+
+            if (node.view.enabled == 0) {
+                attribute("android:enabled", "false")
             }
 
             for (child in node.childs) {
@@ -145,6 +155,14 @@ class XmlLayoutGenerator(
             17 -> "AdView"
             18 -> "MapView"
             else -> "Unknown"
+        }
+    }
+
+    private fun resolveLayoutValue(value: Int): String {
+        return when (value) {
+            -1 -> "match_parent"
+            -2 -> "wrap_content"
+            else -> "${value}dp"
         }
     }
 
