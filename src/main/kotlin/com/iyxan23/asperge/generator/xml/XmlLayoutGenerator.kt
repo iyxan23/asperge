@@ -16,7 +16,7 @@ class XmlLayoutGenerator(
     private val project: Project,
 ) {
 
-    val rootView = ViewNode(
+    private val rootView = ViewNode(
         ViewItem(
             "",
             "",

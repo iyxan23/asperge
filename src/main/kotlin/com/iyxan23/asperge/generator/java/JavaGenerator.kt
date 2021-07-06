@@ -173,6 +173,7 @@ public class %s extends AppCompatActivity {
             0 -> "boolean $name = false;"
             1 -> "int $name = 0;"
             2 -> "String $name = \"\";"
+            3 -> "HashMap<String, Object> $name = new HashMap();"
             else -> "// Unknown variable type $type"
         }
     }
@@ -182,6 +183,7 @@ public class %s extends AppCompatActivity {
             0 -> "ArrayList<Boolean> $name = new ArrayList();"
             1 -> "ArrayList<Integer> $name = new ArrayList();"
             2 -> "ArrayList<String> $name = new ArrayList();"
+            3 -> "ArrayList<HashMap<String, Object>> $name = new ArrayList();"
             else -> "// Unknown variable type $type"
         }
     }
