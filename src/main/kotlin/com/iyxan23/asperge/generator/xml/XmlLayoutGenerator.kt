@@ -90,7 +90,7 @@ class XmlLayoutGenerator(
     private fun generateXml(node: ViewNode): Node {
         val viewName = getViewName(node.view.type)
         return xml(viewName) {
-            attribute("android:id", "+@/${node.view.id}")
+            attribute("android:id", "@+id/${node.view.id}")
 
             attribute("android:layout_height", resolveLayoutValue(node.view.layout.height))
             attribute("android:layout_width", resolveLayoutValue(node.view.layout.width))
