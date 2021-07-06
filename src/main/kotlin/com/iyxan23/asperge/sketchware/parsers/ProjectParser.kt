@@ -5,5 +5,5 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 class ProjectParser(private val content: String) {
-    fun parse(): Project = Json.decodeFromString(content)
+    fun parse(): Project = Json { ignoreUnknownKeys = true }.decodeFromString(content)
 }
