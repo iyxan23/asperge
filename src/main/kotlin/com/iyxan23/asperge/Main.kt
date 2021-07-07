@@ -148,15 +148,20 @@ fun main(args: Array<String>) {
                     sketchwareProject.project
                 )
 
-                println(generator.generate())
+                // Check if the extension is .xml and not .xml_fab
+                if (section.ext == "xml") {
+                    // Write code
+                    val code = generator.generate()
+                    File(layoutFolder, "${section.name}.xml").writeText(code)
 
-                viewIdTypes[section.name] = Pair(generator.getViewIDs(), generator.getViewTypes())
+                    viewIdTypes[section.name] = Pair(generator.getViewIDs(), generator.getViewTypes())
+                }
             }
 
             // Generate java codes
             viewIdTypes.keys.forEach { layoutName ->
                 val activityName = "${layoutName.capitalize()}Activity"
-                println(
+                val code =
                     NewJavaGenerator(
                         activities[activityName] as List<BaseLogicSection>,
                         viewIdTypes[layoutName]!!.first,
@@ -165,7 +170,9 @@ fun main(args: Array<String>) {
                         layoutName,
                         sketchwareProject.project
                     ).generate()
-                )
+
+                // Write code
+                File(codeFolder, "$activityName.java").writeText(code)
             }
         }
     }
