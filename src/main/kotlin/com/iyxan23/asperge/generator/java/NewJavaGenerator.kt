@@ -2,20 +2,19 @@ package com.iyxan23.asperge.generator.java
 
 import com.iyxan23.asperge.generator.java.builder.buildJavaCode
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
-import com.iyxan23.asperge.sketchware.models.projectfiles.file.FileItem
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
 import java.lang.StringBuilder
 
 class NewJavaGenerator(
-    private val sections: List<BaseLogicSection>,
+    private val sections: List<BaseLogicSection>, // MUST be from the same activity
     private val viewIDs: List<String>,
     private val viewTypes: List<String>,
-    private val activityData: FileItem,
+    private val activityName: String,
+    private val layoutName: String,
     private val project: Project
 ) {
 
     private val globalVariables = ArrayList<Variable>()
-    private var className: String = activityData.fileName.capitalize() + "Activity"
 
     private val events = ArrayList<Event>()
     private val eventsBlocks = HashMap<String, BlocksLogicSection>()
@@ -30,7 +29,7 @@ class NewJavaGenerator(
 
         return buildJavaCode(
             "public",
-            className,
+            activityName,
             "extends AppCompatActivity",
             project.packageName
         ) {
@@ -57,7 +56,7 @@ class NewJavaGenerator(
 
             onCreate {
                 addCode("super.onCreate(savedInstanceState);")
-                addCode("setContentView(R.layout.${activityData.fileName})")
+                addCode("setContentView(R.layout.${layoutName})")
 
                 addCode("initializeViews();")
 

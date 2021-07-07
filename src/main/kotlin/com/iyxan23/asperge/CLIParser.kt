@@ -1,6 +1,7 @@
 package com.iyxan23.asperge
 
 import com.iyxan23.asperge.unpacker.Unpacker
+import java.io.File
 
 object CLIParser {
     fun process(args: List<String>): Options? {
@@ -57,7 +58,33 @@ object CLIParser {
             }
 
             "generate", "gen" -> {
-                TODO()
+                val path = args[1]
+                var output = if (File(path).isFile) path.split(".")[0] else path + "_gen"
+
+                var javaOnly = false
+                var layoutOnly = false
+
+                var activities: List<String> = ArrayList()
+                var layouts: List<String> = ArrayList()
+
+                val arguments = ArgumentsParser(
+                    listOf("--java-only", "--layout-only"),
+                    listOf("--out", "--layouts", "--activities")
+                ).parse(args.subList(2, args.size))
+
+                arguments.forEach {
+                    when (it.first) {
+                        "--out" -> output = it.second!!
+
+                        "--java-only" -> javaOnly = true
+                        "--layout-only" -> layoutOnly = true
+
+                        "--activities" -> activities = it.second!!.split(",")
+                        "--layouts" -> layouts = it.second!!.split(",")
+                    }
+                }
+
+                return GenerateOptions(path, output, javaOnly, layoutOnly, activities, layouts)
             }
 
             else -> {
@@ -173,5 +200,14 @@ object CLIParser {
         val filePath: String,
         val out: String,
         val force: Boolean,
+    ) : Options()
+
+    class GenerateOptions(
+        val path: String,
+        val out: String,
+        val javaOnly: Boolean,
+        val layoutOnly: Boolean,
+        val activities: List<String>,
+        val layouts: List<String>,
     ) : Options()
 }
