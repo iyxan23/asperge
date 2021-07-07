@@ -39,7 +39,21 @@ object CLIParser {
             }
 
             "decrypt" -> {
-                TODO()
+                val filename = args[1]
+                var output = filename + "_decrypted"
+                var force = false
+
+                val arguments = ArgumentsParser(
+                    listOf("-f", "--force"),
+                    listOf("--out")
+                ).parse(args.subList(2, args.size))
+
+                arguments.forEach {
+                    if (it.first == "--out") output = it.second!!
+                    else if (it.first == "-f" || it.first == "--force") force = true
+                }
+
+                return DecryptOptions(filename, output, force)
             }
 
             "generate", "gen" -> {
@@ -114,11 +128,12 @@ object CLIParser {
                         `decrypt` Decrypts a sketchware-encrypted file
                     
                     Syntax:
-                        decrypt (file) [--out path/to/file]
+                        decrypt (file) [--out path/to/file] [-f | --force]
                     
                     Usage:
                         asperge decrypt file: Decrypts file and save it into file_decrypted
                         asperge decrypt file --out my_file: Decrypts file and save it into my_file
+                        asperge decrypt file --out my_file -f: Decrypts file and override my_file with the decrypted text if it exists
                 """.trimIndent())
             }
 
@@ -152,5 +167,11 @@ object CLIParser {
         val filePath: String,
         val out: String,
         val dontDecrypt: Boolean,
+    ) : Options()
+
+    class DecryptOptions(
+        val filePath: String,
+        val out: String,
+        val force: Boolean,
     ) : Options()
 }
