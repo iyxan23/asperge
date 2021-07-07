@@ -140,7 +140,7 @@ fun main(args: Array<String>) {
             }
 
             // Initialize some folders
-            val layoutFolder = File(out, "res")
+            val layoutFolder = File(out, "res/layout")
             val codeFolder =
                 File(out, "java/${ sketchwareProject.project.packageName.replace(".", "/") }/")
 
