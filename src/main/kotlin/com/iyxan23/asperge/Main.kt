@@ -26,8 +26,7 @@ fun main(args: Array<String>) {
                     val answer = readLine()
 
                     if (answer != null) {
-                        if (answer.toLowerCase() == "n") return
-                        else if (answer.toLowerCase() == "y")
+                        if (answer.toLowerCase() != "y") return
                         else println("Got an invalid answer $answer, exiting"); return
 
                     } else {
