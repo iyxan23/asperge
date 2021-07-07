@@ -3,10 +3,10 @@ package com.iyxan23.asperge
 import com.iyxan23.asperge.unpacker.Unpacker
 
 object CLIParser {
-    fun process(args: List<String>) {
+    fun process(args: List<String>): Options? {
         if (args.isEmpty()) {
             defaultHelp()
-            return
+            return null
         }
 
         when (args[0]) {
@@ -16,18 +16,39 @@ object CLIParser {
                 } else {
                     defaultHelp()
                 }
+
+                return null
             }
 
             "extract" -> {
-                TODO()
+                val filename = args[1]
+                var output = filename
+                var dontDecrypt = false
+
+                val arguments = ArgumentsParser(
+                    listOf("--dont-decrypt"),
+                    listOf("--out")
+                ).parse(args.subList(1, args.size - 1))
+
+                arguments.forEach {
+                    if (it.first == "--dont-decrypt") dontDecrypt = true
+                    else if (it.first == "--out") output = it.second!!
+                }
+
+                return ExtractOptions(filename, output, dontDecrypt)
             }
 
             "decrypt" -> {
                 TODO()
             }
 
-            "generate" -> {
+            "generate", "gen" -> {
                 TODO()
+            }
+
+            else -> {
+                println("Unknown command ${args[0]}")
+                return null
             }
         }
     }
@@ -109,7 +130,7 @@ object CLIParser {
                         `generate` Generates java and xml layouts from a sketchware project
                     
                     Syntax:
-                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--out path/to/folder] [--java-only] [--layout-only] [--activities (ExampleActivity, Example2Activity)] [--layouts (main, example)]
+                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--out path/to/folder] [--java-only] [--layout-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
                     
                     Usage:
                         asperge gen my_project.sh: Generates java and xml layout files into ./my_project/
@@ -124,4 +145,12 @@ object CLIParser {
             else -> println("Unknown command $name")
         }
     }
+
+    abstract class Options
+
+    class ExtractOptions(
+        val filePath: String,
+        val out: String,
+        val dontDecrypt: Boolean,
+    ) : Options()
 }
