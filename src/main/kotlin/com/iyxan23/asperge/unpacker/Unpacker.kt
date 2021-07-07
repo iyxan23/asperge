@@ -16,7 +16,7 @@ object Unpacker {
     }
 
     // File extensions of the specified project types
-    private val typeExtensions = mapOf(
+    val typeExtensions = mapOf(
         "sh" to ProjectType.SKETCHUB
     )
 
