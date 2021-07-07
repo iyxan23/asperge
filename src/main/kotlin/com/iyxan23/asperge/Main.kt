@@ -62,6 +62,16 @@ fun main(args: Array<String>) {
             val path = File(options.path)
             val out = File(options.out)
 
+            // Used to check if we need to check if an activity / layout should be generated
+            val restrictActivities = options.activities.isNotEmpty()
+            val restrictLayouts = options.layouts.isNotEmpty()
+
+            // Some checks to make sure that the arguments given are valid
+            if (options.layoutOnly && options.javaOnly) {
+                println("You can only choose one flag between --layout-only and --java-only")
+                return
+            }
+
             if (out.exists()) {
                 println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
                 return
@@ -76,6 +86,7 @@ fun main(args: Array<String>) {
 
             val sketchwareProject: SketchwareProject
 
+            // Now figure out how to transform the given path into a sketchware project
             if (!path.isFile) {
                 // This is a folder, it might be a decrypted sketchware project, or an encrypted sketchware project
                 // But first, we should check the project structure
@@ -118,12 +129,17 @@ fun main(args: Array<String>) {
                 sketchwareProject = unpacked.decrypt().parse()
             }
 
+            // Initialize some folders
             val layoutFolder = File(out, "res")
             val codeFolder =
                 File(out, "java/${ sketchwareProject.project.packageName.replace(".", "/") }/")
 
             layoutFolder.mkdirs()
             codeFolder.mkdirs()
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Start generating
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             // Now sort these sections into a map of activities, because every sections are mixed together
             val activities = HashMap<String, ArrayList<BaseLogicSection>>()
@@ -141,6 +157,10 @@ fun main(args: Array<String>) {
 
             // At the same time, generate xml layouts
             sketchwareProject.view.sections.forEach { section ->
+                // Check if the extension is not .xml_fab
+                // TODO: 7/7/21 understand what xml_fab is
+                if (section.ext == "xml_fab") return@forEach
+
                 val generator = XmlLayoutGenerator(
                     section,
                     sketchwareProject.resource,
@@ -148,19 +168,37 @@ fun main(args: Array<String>) {
                     sketchwareProject.project
                 )
 
-                // Check if the extension is .xml and not .xml_fab
-                if (section.ext == "xml") {
-                    // Write code
-                    val code = generator.generate()
-                    File(layoutFolder, "${section.name}.xml").writeText(code)
+                // Used for java generator to declare variable view ids n stuff
+                viewIdTypes[section.name] = Pair(generator.getViewIDs(), generator.getViewTypes())
 
-                    viewIdTypes[section.name] = Pair(generator.getViewIDs(), generator.getViewTypes())
+                // Make sure to check if the user wants the layout
+                if (options.javaOnly) return@forEach
+
+                // Check if they restrict layouts
+                if (restrictLayouts) {
+                    // Also check if they wanted to include this layout file
+                    if (!options.layouts.contains(section.name)) return@forEach // No, then just continue the loop
                 }
+
+                // Write code
+                val code = generator.generate()
+                File(layoutFolder, "${section.name}.xml").writeText(code)
             }
+
+            // Make sure that the user wants the java code
+            if (options.layoutOnly) return
 
             // Generate java codes
             viewIdTypes.keys.forEach { layoutName ->
                 val activityName = "${layoutName.capitalize()}Activity"
+
+                // Check if they restrict activities
+                if (restrictActivities) {
+                    // Check if this activity is included
+                    if (!options.activities.contains(activityName)) return@forEach // then just continue
+                }
+
+                // Generate code
                 val code =
                     NewJavaGenerator(
                         activities[activityName] as List<BaseLogicSection>,
