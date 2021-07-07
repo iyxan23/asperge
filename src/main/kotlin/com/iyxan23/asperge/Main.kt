@@ -6,7 +6,7 @@ import java.io.File
 fun main(args: Array<String>) {
     when (val options = CLIParser.process(args.toList())) {
         is CLIParser.ExtractOptions -> {
-            val unpacked = Unpacker.unpack(args[0])
+            val unpacked = Unpacker.unpack(options.filePath)
 
             if (options.dontDecrypt) {
                 unpacked.writeToFolder(File(options.out))
