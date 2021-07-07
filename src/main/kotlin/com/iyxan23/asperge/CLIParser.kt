@@ -22,13 +22,13 @@ object CLIParser {
 
             "extract" -> {
                 val filename = args[1]
-                var output = filename
+                var output = filename.split(".")[0]
                 var dontDecrypt = false
 
                 val arguments = ArgumentsParser(
                     listOf("--dont-decrypt"),
                     listOf("--out")
-                ).parse(args.subList(1, args.size - 1))
+                ).parse(args.subList(2, args.size))
 
                 arguments.forEach {
                     if (it.first == "--dont-decrypt") dontDecrypt = true
