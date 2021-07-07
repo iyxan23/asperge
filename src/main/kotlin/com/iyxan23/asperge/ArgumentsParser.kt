@@ -13,16 +13,16 @@ class ArgumentsParser(
             when {
                 captureNext -> {
                     captureNext = false
-                    Pair(it, lastStringFlag)
+                    Pair(lastStringFlag, it)
                 }
-
-                flags.contains(it) -> Pair(it, null)
 
                 strings.contains(it) -> {
                     captureNext = true
                     lastStringFlag = it
-                    Pair(it, null)
+                    null
                 }
+
+                flags.contains(it) -> Pair(it, null)
 
                 else -> null
             }
