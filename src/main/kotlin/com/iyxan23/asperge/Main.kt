@@ -72,6 +72,16 @@ fun main(args: Array<String>) {
                 return
             }
 
+            if (options.javaOnly && restrictLayouts) {
+                println("Cannot restrict layouts when we can only generate java codes")
+                return
+            }
+
+            if (options.layoutOnly && restrictActivities) {
+                println("Cannot restrict activities when we can only generate xml layout codes")
+                return
+            }
+
             if (out.exists()) {
                 println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
                 return
