@@ -1,6 +1,5 @@
 package com.iyxan23.asperge.unpacker
 
-import com.iyxan23.asperge.Decryptor
 import com.iyxan23.asperge.sketchware.models.RawSketchwareProject
 import com.iyxan23.asperge.unpacker.models.SketchubDataItem
 import com.iyxan23.asperge.unpacker.models.SketchubIndex
@@ -8,7 +7,6 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.util.zip.ZipFile
-
 
 object Unpacker {
     enum class ProjectType {
@@ -49,17 +47,15 @@ object Unpacker {
         val data = Json.decodeFromString<List<SketchubDataItem>>(index.data)
 
         // Get the project files
-        val projectFiles = HashMap<String, String>()
+        val projectFiles = HashMap<String, ByteArray>()
         val projectFilenames = arrayOf("logic", "view", "file", "library", "resource", "project")
 
         data.forEach { item ->
             if (projectFilenames.contains(item.name))
                 projectFiles[item.name] =
-                    Decryptor.decrypt(
-                        zip.getInputStream(
-                            zip.getEntry("temp//${item.id}")
-                        ).readBytes()
-                    )
+                    zip.getInputStream(
+                        zip.getEntry("temp//${item.id}")
+                    ).readBytes()
         }
 
         // Check to make sure that these project files are initialized
