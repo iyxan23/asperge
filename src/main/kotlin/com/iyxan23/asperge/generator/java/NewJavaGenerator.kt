@@ -4,6 +4,7 @@ import com.iyxan23.asperge.generator.java.builder.buildJavaCode
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.file.FileItem
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
+import java.lang.StringBuilder
 
 class NewJavaGenerator(
     private val sections: List<BaseLogicSection>,
@@ -31,26 +32,40 @@ class NewJavaGenerator(
             "public",
             className,
             "extends AppCompatActivity",
-            "com.test.helloworld"
+            project.packageName
         ) {
             addImport("androidx.appcompat.app.AppCompatActivity")
             addImport("android.view.*")
 
             // Add global variables
-            if (globalVariables.size > 0) {
+            if (globalVariables.isNotEmpty()) {
                 addCode("// Global variable(s)")
                 globalVariables.forEach { variable -> addCode(varDeclaration(variable.type, variable.name)) }
             }
 
             // Add list variables
-            if (globalVariables.size > 0) {
+            if (lists.isNotEmpty()) {
                 addCode("// List variable(s)")
                 lists.forEach { listVariable -> addCode(listDeclaration(listVariable.type, listVariable.name)) }
+            }
+
+            // Add view variables
+            if (viewIDs.isNotEmpty()) {
+                addCode("// View declaration(s)")
+                viewIDs.forEachIndexed { index, id -> addCode("${viewTypes[index]} $id;") }
             }
 
             onCreate {
                 addCode("super.onCreate(savedInstanceState);")
                 addCode("setContentView(R.layout.${activityData.fileName})")
+
+                addCode("initializeViews();")
+
+                addCode(generateCode(onCreateSection!!))
+            }
+
+            function("private void", "initializeViews()") {
+                viewIDs.forEach { view -> addCode("$view = findViewById(R.id.$view)") }
             }
         }
     }
@@ -72,6 +87,42 @@ class NewJavaGenerator(
                 }
             }
         }
+    }
+
+    // Used to blacklist blocks that is parsed as a parameter
+    private val blacklistedBlocks = ArrayList<String>()
+
+    private fun generateCode(section: BlocksLogicSection, idOffset: Int = -1, addSemicolon: Boolean = true): String {
+        val result = StringBuilder()
+        var skipOffset = idOffset != -1
+
+        section.blocks.values.forEach { block ->
+            if (skipOffset) {
+                if (block.id.toInt() == idOffset) skipOffset = false
+                else return@forEach
+            }
+
+            if (blacklistedBlocks.contains(block.id)) return@forEach
+
+            val parsedParams = ArrayList<String>()
+
+            block.parameters.forEach { param ->
+                if (param.startsWith("@")) {
+                    // this is a block parameter
+                    val blockId = param.substring(1, param.length)
+                    parsedParams.add(generateCode(section, blockId.toInt(), false))
+
+                    blacklistedBlocks.add(blockId)
+
+                } else {
+                    parsedParams.add(param)
+                }
+            }
+
+            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams, block.spec, addSemicolon))
+        }
+
+        return result.toString().trim()
     }
 
     private fun varDeclaration(type: Int, name: String): String {
