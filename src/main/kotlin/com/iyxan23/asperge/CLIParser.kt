@@ -1,7 +1,6 @@
 package com.iyxan23.asperge
 
 import com.iyxan23.asperge.unpacker.Unpacker
-import java.io.File
 
 object CLIParser {
     fun process(args: List<String>): Options? {
@@ -59,7 +58,8 @@ object CLIParser {
 
             "generate", "gen" -> {
                 val path = args[1]
-                var output = if (File(path).isFile) path.split(".")[0] else path + "_gen"
+                var output = ""
+                var printCodeToStdout = false
 
                 var javaOnly = false
                 var layoutOnly = false
@@ -81,10 +81,12 @@ object CLIParser {
 
                         "--activities" -> activities = it.second!!.split(",")
                         "--layouts" -> layouts = it.second!!.split(",")
+
+                        "--stdout" -> printCodeToStdout = true
                     }
                 }
 
-                return GenerateOptions(path, output, javaOnly, layoutOnly, activities, layouts)
+                return GenerateOptions(path, output, javaOnly, layoutOnly, activities, layouts, printCodeToStdout)
             }
 
             else -> {
@@ -189,11 +191,14 @@ object CLIParser {
                         `generate` Generates java and xml layouts from a sketchware project
                     
                     Syntax:
-                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--out path/to/folder] [--java-only] [--layout-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
+                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--stdout] [--out path/to/folder] [--java-only] [--layout-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
                     
                     Usage:
                         asperge gen my_project.sh
                             : Generates java and xml layout files into ./my_project/
+                            
+                        asperge gen my_project.sh --stdout
+                            : Generates java and xml layout files and echo it to stdout / output / terminal
                             
                         asperge gen extracted_project/
                             : Generates java and xml layout files from an extracted project into ./extracted_project_gen/
@@ -237,5 +242,6 @@ object CLIParser {
         val layoutOnly: Boolean,
         val activities: List<String>,
         val layouts: List<String>,
+        val printCodeToStdout: Boolean,
     ) : Options()
 }

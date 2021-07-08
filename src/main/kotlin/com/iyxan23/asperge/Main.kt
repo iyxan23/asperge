@@ -60,7 +60,6 @@ fun main(args: Array<String>) {
 
         is CLIParser.GenerateOptions -> {
             val path = File(options.path)
-            val out = File(options.out)
 
             // Used to check if we need to check if an activity / layout should be generated
             val restrictActivities = options.activities.isNotEmpty()
@@ -81,6 +80,17 @@ fun main(args: Array<String>) {
                 println("Cannot restrict activities when we can only generate xml layout codes")
                 return
             }
+
+            if (options.printCodeToStdout && options.out.isNotBlank()) {
+                println("Cannot print to stdout and output a file at the same time")
+                return
+            }
+
+            val out: File =
+                if (options.out.isBlank())
+                    File(if (path.isFile) path.nameWithoutExtension else path.name + "_gen")
+
+                else File(options.out)
 
             if (out.exists()) {
                 println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
@@ -190,9 +200,15 @@ fun main(args: Array<String>) {
                     if (!options.layouts.contains(section.name)) return@forEach // No, then just continue the loop
                 }
 
-                // Write code
                 val code = generator.generate()
-                File(layoutFolder, "${section.name}.xml").writeText(code)
+
+                // Check if the user wants the code to be saved to a file instead of printing it to the terminal
+                if (!options.printCodeToStdout) {
+                    // Write code
+                    File(layoutFolder, "${section.name}.xml").writeText(code)
+                } else {
+                    println(code)
+                }
             }
 
             // Make sure that the user wants the java code
@@ -219,8 +235,13 @@ fun main(args: Array<String>) {
                         sketchwareProject.project
                     ).generate()
 
-                // Write code
-                File(codeFolder, "$activityName.java").writeText(code)
+                // Check if the user wants the code to be saved to a file instead of printing it to the terminal
+                if (!options.printCodeToStdout) {
+                    // Write code
+                    File(codeFolder, "$activityName.java").writeText(code)
+                } else {
+                    println(code)
+                }
             }
         }
     }
