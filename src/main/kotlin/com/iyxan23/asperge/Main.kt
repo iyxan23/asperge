@@ -61,6 +61,10 @@ fun main(args: Array<String>) {
         is CLIParser.GenerateOptions -> {
             val path = File(options.path)
 
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Arguments checking
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
             // Used to check if we need to check if an activity / layout should be generated
             val restrictActivities = options.activities.isNotEmpty()
             val restrictLayouts = options.layouts.isNotEmpty()
@@ -106,6 +110,10 @@ fun main(args: Array<String>) {
                 println("$path doesn't exist, make sure you spelled it correctly")
                 return
             }
+
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            // Reading project
+            ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
             val sketchwareProject: SketchwareProject
 
