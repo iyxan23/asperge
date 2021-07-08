@@ -8,7 +8,7 @@ object EventsDictionary {
             "onClick" ->
 """
 ${event.targetId}.setOnClickListener(new View.OnClickListener() {
-${blocksCode.prependIndent(" ".repeat(4))}
+$blocksCode
 });
 """.prependIndent(" ".repeat(8))
 

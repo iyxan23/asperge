@@ -6,7 +6,10 @@ class BlocksParser(
     private val blocks: LinkedHashMap<String, LogicBlock>
 ) {
     fun parse(): List<Block> {
-        return blocks.values.map { block -> parseBlock(block) }
+        return blocks.values.mapNotNull { block ->
+            if (blacklistedIds.contains(block.id)) return@mapNotNull null
+            return@mapNotNull parseBlock(block)
+        }
     }
 
     private val blacklistedIds = ArrayList<String>()

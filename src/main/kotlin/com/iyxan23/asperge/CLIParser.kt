@@ -68,7 +68,7 @@ object CLIParser {
                 var layouts: List<String> = ArrayList()
 
                 val arguments = ArgumentsParser(
-                    listOf("--java-only", "--layout-only"),
+                    listOf("--java-only", "--layout-only", "--stdout"),
                     listOf("--out", "--layouts", "--activities")
                 ).parse(args.subList(2, args.size))
 

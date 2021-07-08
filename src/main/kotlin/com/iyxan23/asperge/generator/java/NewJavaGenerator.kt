@@ -98,8 +98,8 @@ class NewJavaGenerator(
         val blocks = BlocksParser(rawBlocks).parse()
 
         return StringBuilder().apply {
-            blocks.forEach { block -> append(generateCodeFromBlock(block)) }
-        }.toString()
+            blocks.forEach { block -> appendLine(generateCodeFromBlock(block)) }
+        }.toString().trim()
     }
 
     private fun generateCodeFromBlock(block: Block, addSemicolon: Boolean = true): String {

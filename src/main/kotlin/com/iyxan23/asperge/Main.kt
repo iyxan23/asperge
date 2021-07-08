@@ -92,9 +92,12 @@ fun main(args: Array<String>) {
 
                 else File(options.out)
 
-            if (out.exists()) {
-                println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
-                return
+            // check if out already exists if we don't print to stdout
+            if (!options.printCodeToStdout) {
+                if (out.exists()) {
+                    println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
+                    return
+                }
             }
 
             out.mkdir()
@@ -152,10 +155,13 @@ fun main(args: Array<String>) {
             // Initialize some folders
             val layoutFolder = File(out, "res/layout")
             val codeFolder =
-                File(out, "java/${ sketchwareProject.project.packageName.replace(".", "/") }/")
+                File(out, "java/${sketchwareProject.project.packageName.replace(".", "/")}/")
 
-            layoutFolder.mkdirs()
-            codeFolder.mkdirs()
+            // Create the folders if we don't print to stdout
+            if (!options.printCodeToStdout) {
+                layoutFolder.mkdirs()
+                codeFolder.mkdirs()
+            }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Start generating

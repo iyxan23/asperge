@@ -4,7 +4,7 @@ import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
 import java.lang.StringBuilder
 
-class JavaGenerator(
+class OldJavaGenerator(
     private val sections: List<BaseLogicSection>,
     private val viewIDs: List<String>,
     private val viewTypes: List<String>,

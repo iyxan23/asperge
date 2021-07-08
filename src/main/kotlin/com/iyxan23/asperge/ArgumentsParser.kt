@@ -24,7 +24,7 @@ class ArgumentsParser(
 
                 flags.contains(it) -> Pair(it, null)
 
-                else -> null
+                else -> throw RuntimeException("Unexpected parameter $it")
             }
         }
     }
