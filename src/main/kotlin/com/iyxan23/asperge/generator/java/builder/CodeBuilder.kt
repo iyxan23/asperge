@@ -6,4 +6,8 @@ open class CodeBuilder {
     fun addCode(code: String) {
         this.code += "$code\n"
     }
+
+    fun addSpace() {
+        this.code += "\n"
+    }
 }

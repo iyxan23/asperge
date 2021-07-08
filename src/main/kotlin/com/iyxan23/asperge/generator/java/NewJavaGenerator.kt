@@ -41,25 +41,30 @@ class NewJavaGenerator(
             if (globalVariables.isNotEmpty()) {
                 addCode("// Global variable(s)")
                 globalVariables.forEach { variable -> addCode(varDeclaration(variable.type, variable.name)) }
+                addSpace()
             }
 
             // Add list variables
             if (lists.isNotEmpty()) {
                 addCode("// List variable(s)")
                 lists.forEach { listVariable -> addCode(listDeclaration(listVariable.type, listVariable.name)) }
+                addSpace()
             }
 
             // Add view variables
             if (viewIDs.isNotEmpty()) {
                 addCode("// View declaration(s)")
                 viewIDs.forEachIndexed { index, id -> addCode("${viewTypes[index]} $id;") }
+                addSpace()
             }
 
             onCreate {
                 addCode("super.onCreate(savedInstanceState);")
                 addCode("setContentView(R.layout.${layoutName})")
+                addSpace()
 
                 addCode("initializeViews();")
+                addSpace()
 
                 addCode(generateCode(onCreateSection!!.blocks))
             }
