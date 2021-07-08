@@ -5,11 +5,6 @@ import com.iyxan23.asperge.generator.java.parser.Block
 import com.iyxan23.asperge.generator.java.parser.BlocksParser
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
-import java.lang.RuntimeException
-import java.lang.StringBuilder
-import kotlin.math.log
-
-import com.iyxan23.asperge.sketchware.models.projectfiles.logic.Block as LogicBlock
 
 class NewJavaGenerator(
     private val sections: List<BaseLogicSection>, // MUST be from the same activity
@@ -66,7 +61,11 @@ class NewJavaGenerator(
 
                 addCode("initializeViews();")
 
-                addCode(generateCode(onCreateSection!!))
+                addCode(generateCode(onCreateSection!!.blocks))
+            }
+
+            function("private void", "registerEvents") {
+                events.forEach { event -> addCode(generateCodeFromEvent(event)) }
             }
 
             function("private void", "initializeViews()") {
@@ -94,9 +93,9 @@ class NewJavaGenerator(
         }
     }
 
-    private fun generateCode(section: BlocksLogicSection): String {
+    private fun generateCode(rawBlocks: LinkedHashMap<String, com.iyxan23.asperge.sketchware.models.projectfiles.logic.Block>): String {
         // First, we need to parse the section
-        val blocks = BlocksParser(section).parse()
+        val blocks = BlocksParser(rawBlocks).parse()
 
         return StringBuilder().apply {
             blocks.forEach { block -> append(generateCodeFromBlock(block)) }
@@ -130,6 +129,16 @@ class NewJavaGenerator(
                 else -> throw RuntimeException("Unexpected type ${param.javaClass.name} while parsing parameters")
             }
         }
+    }
+
+    private fun generateCodeFromEvent(event: Event): String {
+        val blocks = eventsBlocks["java_${event.targetId}_${event.eventName}"]
+            ?: return "// Cannot find blocks of $event".prependIndent(" ".repeat(8))
+
+        return EventsDictionary.generateCode(
+            event,
+            generateCode(blocks.blocks) // <- the blocks of this event
+        )
     }
 
     private fun varDeclaration(type: Int, name: String): String {
