@@ -1,9 +1,15 @@
 package com.iyxan23.asperge.generator.java
 
 import com.iyxan23.asperge.generator.java.builder.buildJavaCode
+import com.iyxan23.asperge.generator.java.parser.Block
+import com.iyxan23.asperge.generator.java.parser.BlocksParser
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
+import java.lang.RuntimeException
 import java.lang.StringBuilder
+import kotlin.math.log
+
+import com.iyxan23.asperge.sketchware.models.projectfiles.logic.Block as LogicBlock
 
 class NewJavaGenerator(
     private val sections: List<BaseLogicSection>, // MUST be from the same activity
@@ -88,40 +94,42 @@ class NewJavaGenerator(
         }
     }
 
-    // Used to blacklist blocks that is parsed as a parameter
-    private val blacklistedBlocks = ArrayList<String>()
+    private fun generateCode(section: BlocksLogicSection): String {
+        // First, we need to parse the section
+        val blocks = BlocksParser(section).parse()
 
-    private fun generateCode(section: BlocksLogicSection, idOffset: Int = -1, addSemicolon: Boolean = true): String {
-        val result = StringBuilder()
-        var skipOffset = idOffset != -1
+        return StringBuilder().apply {
+            blocks.forEach { block -> append(generateCodeFromBlock(block)) }
+        }.toString()
+    }
 
-        section.blocks.values.forEach { block ->
-            if (skipOffset) {
-                if (block.id.toInt() == idOffset) skipOffset = false
-                else return@forEach
+    private fun generateCodeFromBlock(block: Block, addSemicolon: Boolean = true): String {
+        val parameters = generateParametersCode(block.parameters)
+
+        return BlocksDictionary.generateCode(
+            block.logicBlock.opCode,
+            parameters,
+            block.logicBlock.spec,
+            addSemicolon
+        )
+    }
+
+    private fun generateParametersCode(params: List<Any>): List<String> {
+        return params.map { param ->
+            when (param) {
+                is String -> param
+
+                is Block ->
+                    BlocksDictionary.generateCode(
+                        param.logicBlock.opCode,
+                        generateParametersCode(param.parameters),
+                        param.logicBlock.spec,
+                        addSemicolon = false // This is a parameter, we can't have semicolons at the end of the code
+                    )
+
+                else -> throw RuntimeException("Unexpected type ${param.javaClass.name} while parsing parameters")
             }
-
-            if (blacklistedBlocks.contains(block.id)) return@forEach
-
-            val parsedParams = ArrayList<String>()
-
-            block.parameters.forEach { param ->
-                if (param.startsWith("@")) {
-                    // this is a block parameter
-                    val blockId = param.substring(1, param.length)
-                    parsedParams.add(generateCode(section, blockId.toInt(), false))
-
-                    blacklistedBlocks.add(blockId)
-
-                } else {
-                    parsedParams.add(param)
-                }
-            }
-
-            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams, block.spec, addSemicolon))
         }
-
-        return result.toString().trim()
     }
 
     private fun varDeclaration(type: Int, name: String): String {
