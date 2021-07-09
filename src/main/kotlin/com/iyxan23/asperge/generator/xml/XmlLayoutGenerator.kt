@@ -16,26 +16,26 @@ class XmlLayoutGenerator(
 
     private val rootView = ViewNode(
         ViewItem(
-            "",
-            "",
+            "", //
+            "", //
             1.0f,
             0,
-            0,
+            0, //
             1,
-            "",
+            "", //
+            1, //
             1,
-            1,
-            1,
+            1, //
             "root",
             ImageConfig(null, 0, "CENTER"),
             "false",
-            0,
+            0, //
             LayoutConfig(
                 16777215,
                 null,
-                0,
+                0, //
                 -1,
-                0,
+                0, //
                 0,
                 0,
                 0,
@@ -84,47 +84,83 @@ class XmlLayoutGenerator(
     fun generate(): String {
         val parsedView = ViewsParser(layout).parse()
         rootView.childs.addAll(parsedView)
-        return generateXml(rootView).toString(true)
+
+        return generateXml(rootView, addNamespaces = true).toString(true)
     }
 
-    private fun generateXml(node: ViewNode): Node {
+    private fun generateXml(node: ViewNode, addNamespaces: Boolean = false): Node {
         val viewName = getViewName(node.view.type)
-        return xml(viewName) {
-            attribute("android:id", "@+id/${node.view.id}")
+        val view = node.view
 
-            attribute("android:layout_height", resolveLayoutValue(node.view.layout.height))
-            attribute("android:layout_width", resolveLayoutValue(node.view.layout.width))
+        return xml(viewName) {
+            if (addNamespaces) {
+                attribute("xmlns:android", "http://schemas.android.com/apk/res/android")
+                attribute("xmlns:app", "http://schemas.android.com/apk/res-auto")
+                attribute("xmlns:tools", "http://schemas.android.com/tools")
+            }
+
+            attribute("android:id", "@+id/${view.id}")
+
+            attribute("android:layout_height", resolveLayoutValue(view.layout.height))
+            attribute("android:layout_width", resolveLayoutValue(view.layout.width))
 
             when (viewName) {
                 "LinearLayout" ->
-                    attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
+                    attribute("android:orientation", if (view.layout.orientation == 0) "horizontal" else "vertical")
 
                 "ScrollView" ->
-                    attribute("android:orientation", if (node.view.layout.orientation == 0) "horizontal" else "vertical")
+                    attribute("android:orientation", if (view.layout.orientation == 0) "horizontal" else "vertical")
 
                 "Button" -> {
-                    attribute("android:text", node.view.text.text)
-                    attribute("android:textSize", "${node.view.text.textSize}sp")
-                    attribute("android:textColor", "#%X".format(node.view.text.textColor))
+                    attribute("android:text", view.text.text)
+                    attribute("android:textSize", "${view.text.textSize}sp")
+                    attribute("android:textColor", "#%X".format(view.text.textColor))
                 }
 
                 "TextView" -> {
-                    attribute("android:text", node.view.text.text)
-                    attribute("android:textSize", "${node.view.text.textSize}sp")
+                    attribute("android:text", view.text.text)
+                    attribute("android:textSize", "${view.text.textSize}sp")
+                }
+
+                "ImageView" -> {
+                    if (view.image.resName != null) attribute("android:src", view.image.resName)
+                    attribute("android:scaleType", underscoresToCapital(view.image.scaleType))
                 }
             }
 
-            if (node.view.scaleX != 1f) {
-                attribute("android:scaleX", "${node.view.scaleX}")
+            if (view.scaleX != 1f) attribute("android:scaleX", "${view.scaleX}")
+            if (view.scaleY != 1f) attribute("android:scaleY", "${view.scaleX}")
+            if (view.enabled == 0) attribute("android:enabled", "false")
+            if (view.alpha != 1.0f) attribute("android:alpha", "${view.alpha}")
+            if (view.checked != 0) attribute("android:checked", "true")
+            if (view.clickable != 1) attribute("android:clickable", "false")
+            if (view.enabled != 1) attribute("android:enabled", "false")
+            if (view.image.rotate != 0) attribute("android:rotation", "${view.image.rotate}")
+            if (view.indeterminate != "false") attribute("android:rotation", "true")
+
+            if (view.layout.backgroundColor != 16777215) attribute("android:backgroundColor", "#%06X".format(view.layout.backgroundColor))
+            if (view.layout.backgroundResource != null) attribute("android:backgroundResource", "${view.layout.backgroundResource}")
+
+            if (areAllEqual(view.layout.marginTop, view.layout.marginBottom, view.layout.marginRight, view.layout.marginLeft)) {
+                if (view.layout.marginTop != 0) attribute("android:margin", "${view.layout.marginTop}dp")
+            } else {
+                if (view.layout.marginTop != 0) attribute("android:marginTop", "${view.layout.marginTop}dp")
+                if (view.layout.marginRight != 0) attribute("android:marginRight", "${view.layout.marginRight}dp")
+                if (view.layout.marginBottom != 0) attribute("android:marginBottom", "${view.layout.marginBottom}dp")
+                if (view.layout.marginLeft != 0) attribute("android:marginLeft", "${view.layout.marginLeft}dp")
             }
 
-            if (node.view.scaleY != 1f) {
-                attribute("android:scaleY", "${node.view.scaleX}")
+            if (areAllEqual(view.layout.paddingTop, view.layout.paddingBottom, view.layout.paddingRight, view.layout.paddingLeft)) {
+                if (view.layout.paddingTop != 0) attribute("android:padding", "${view.layout.paddingTop}dp")
+            } else {
+                if (view.layout.paddingTop != 0) attribute("android:paddingTop", "${view.layout.paddingTop}dp")
+                if (view.layout.paddingRight != 0) attribute("android:paddingRight", "${view.layout.paddingRight}dp")
+                if (view.layout.paddingBottom != 0) attribute("android:paddingBottom", "${view.layout.paddingBottom}dp")
+                if (view.layout.paddingLeft != 0) attribute("android:paddingLeft", "${view.layout.paddingLeft}dp")
             }
 
-            if (node.view.enabled == 0) {
-                attribute("android:enabled", "false")
-            }
+            if (view.layout.weight != 0) attribute("android:weight", "${view.layout.weight}")
+            if (view.layout.weightSum != 0) attribute("android:weightSum", "${view.layout.weightSum}")
 
             for (child in node.childs) {
                 addNode(generateXml(child))
@@ -170,5 +206,31 @@ class XmlLayoutGenerator(
 
     fun getViewTypes(): List<String> {
         return ArrayList<String>().apply { layout.views.forEach { add(getViewName(it.type)) } }
+    }
+
+    private fun underscoresToCapital(string: String): String {
+        var capitalize = false
+        return StringBuilder().apply {
+            string.toLowerCase().forEach { char ->
+                when {
+                    capitalize -> {
+                        append(char.toUpperCase())
+                        capitalize = false
+                    }
+
+                    char == '_' -> capitalize = true
+                    else -> append(char)
+                }
+            }
+        }.toString()
+    }
+
+    private fun areAllEqual(vararg values: Int): Boolean {
+        if (values.isEmpty()) return true
+
+        val checkValue = values[0]
+        values.forEach { value -> if (value != checkValue) return false }
+
+        return true
     }
 }
