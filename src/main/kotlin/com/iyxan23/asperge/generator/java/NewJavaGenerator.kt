@@ -63,18 +63,23 @@ class NewJavaGenerator(
                 addCode("setContentView(R.layout.${layoutName})")
                 addSpace()
 
-                addCode("initializeViews();")
+                if (viewIDs.isNotEmpty()) addCode("initializeViews();")
+                if (events.isNotEmpty()) addCode("registerEvents();")
                 addSpace()
 
                 addCode(generateCode(onCreateSection!!.blocks))
             }
 
-            function("private void", "registerEvents") {
-                events.forEach { event -> addCode(generateCodeFromEvent(event)) }
+            if (events.isNotEmpty()) {
+                function("private void", "registerEvents") {
+                    events.forEach { event -> addCode(generateCodeFromEvent(event)) }
+                }
             }
 
-            function("private void", "initializeViews()") {
-                viewIDs.forEach { view -> addCode("$view = findViewById(R.id.$view)") }
+            if (viewIDs.isNotEmpty()) {
+                function("private void", "initializeViews()") {
+                    viewIDs.forEach { view -> addCode("$view = findViewById(R.id.$view)") }
+                }
             }
         }
     }
