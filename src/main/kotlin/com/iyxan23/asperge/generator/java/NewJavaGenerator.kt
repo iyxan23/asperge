@@ -89,9 +89,6 @@ class NewJavaGenerator(
 
             addCode("// Moreblocks")
             functions.forEach {
-                println(it.name)
-                println(it.spec)
-
                 val blocks = functionsBlocks[it.name]
                     ?: throw RuntimeException("Cannot find blocks of moreblock ${it.name} at $activityName")
 
