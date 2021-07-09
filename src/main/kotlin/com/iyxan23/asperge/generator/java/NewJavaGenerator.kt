@@ -5,6 +5,8 @@ import com.iyxan23.asperge.generator.java.parser.Block
 import com.iyxan23.asperge.generator.java.parser.BlocksParser
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.*
+import com.iyxan23.asperge.sketchware.models.projectfiles.logic.Function
+import java.util.regex.Pattern
 
 class NewJavaGenerator(
     private val sections: List<BaseLogicSection>, // MUST be from the same activity
@@ -22,6 +24,9 @@ class NewJavaGenerator(
 
     private val components = ArrayList<Component>()
     private val lists = ArrayList<ListLogic>()
+
+    private val functions = ArrayList<Function>()
+    private val functionsBlocks = HashMap<String, BlocksLogicSection>()
 
     private var onCreateSection: BlocksLogicSection? = null
 
@@ -81,6 +86,19 @@ class NewJavaGenerator(
                     viewIDs.forEach { view -> addCode("$view = findViewById(R.id.$view)") }
                 }
             }
+
+            addCode("// Moreblocks")
+            functions.forEach {
+                println(it.name)
+                println(it.spec)
+
+                val blocks = functionsBlocks[it.name]
+                    ?: throw RuntimeException("Cannot find blocks of moreblock ${it.name} at $activityName")
+
+                function("private void", "${it.name}(${functionParameters(it.spec)})") {
+                    addCode(generateCode(blocks.blocks))
+                }
+            }
         }
     }
 
@@ -91,12 +109,22 @@ class NewJavaGenerator(
                 is EventsLogicSection       -> events.addAll(section.events)
                 is ComponentsLogicSection   -> components.addAll(section.components)
                 is ListLogicSection         -> lists.addAll(section.lists)
+                is FunctionsLogicSection    -> functions.addAll(section.functions)
 
                 is BlocksLogicSection -> {
-                    if (section.contextName == "java_onCreate_initializeLogic") {
-                        onCreateSection = section
-                    } else {
-                        eventsBlocks[section.contextName] = section
+                    when {
+                        section.contextName == "java_onCreate_initializeLogic" ->
+                            onCreateSection = section
+
+                        section.contextName.endsWith("_moreBlock") -> {
+                            val functionName = section.contextName
+                                .removePrefix("java_")
+                                .removeSuffix("_moreBlock")
+
+                            functionsBlocks[functionName] = section
+                        }
+
+                        else -> eventsBlocks[section.contextName] = section
                     }
                 }
             }
@@ -168,6 +196,52 @@ class NewJavaGenerator(
             2 -> "ArrayList<String> $name = new ArrayList();"
             3 -> "ArrayList<HashMap<String, Object>> $name = new ArrayList();"
             else -> "// Unknown variable type $type. Variable name: $name"
+        }
+    }
+
+    private fun functionParameters(spec: String): String {
+        /* %(type).(name1)[.(name2)]
+         * if type is "m" then name = name2
+         * else name = name1
+         *
+         * example:
+         * myMoreblock %b.myBoolean %s.myString %m.textview.aTextView %m.file.fileComponent
+         */
+
+        val matcher = Pattern.compile("%(\\w)\\.(\\w+)[.(\\w+)]?").matcher(spec)
+
+        return ArrayList<String>().apply {
+            while (matcher.find()) {
+                val type = matcher.group(1)
+                val name = matcher.group(if (type != "m") 2 else 3)
+
+                if (type != "m") {
+                    add("${parameterType(type)} _$name")
+                } else {
+                    add("${extParameterType(matcher.group(2))} _$name")
+                }
+            }
+        }.joinToString(", ")
+    }
+
+    private fun parameterType(type: String): String {
+        return when (type) {
+            "b" -> "boolean"
+            "d" -> "int"
+            "s" -> "String"
+            else -> "/* Unknown type $type */"
+        }
+    }
+
+    // the %m parameter
+    private fun extParameterType(type: String): String {
+        return when (type) {
+            "varMap" -> "HashMap<String>"
+            "listStr" -> "ArrayList<String>"
+            "listInt" -> "ArrayList<Integer>"
+            "listMap" -> "ArrayList<HashMap<String, Object>>"
+            // TODO: 7/9/21 add more of these
+            else -> "/* Unknown type $type */"
         }
     }
 }
