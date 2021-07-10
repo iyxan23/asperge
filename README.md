@@ -8,7 +8,7 @@ So you can generate codes from sketchware projects right on your pc, so you don'
  - [x] Barebone of blocks code generation
  - [x] Barebone of XML layout generation
  - [x] Command Line Interface
- - [ ] Nested blocks
+ - [x] Nested blocks
  - [x] Implement moreblocks
  - [ ] AndroidManifest.xml generation
  - [ ] Implement components
