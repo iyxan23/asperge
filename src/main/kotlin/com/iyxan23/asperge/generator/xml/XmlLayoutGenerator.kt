@@ -51,28 +51,28 @@ class XmlLayoutGenerator(
             ),
             100,
             null,
-            12,
-            null,
-            "root",
-            0,
-            0,
+            12, //
+            null, //
+            "root", //
+            0, //
+            0, //
             0,
             "?android:progressBarStyle",
             1.0f,
             1.0f,
-            1,
+            1, //
             TextConfig(
                 "",
                 -10453621,
-                0,
-                1,
+                0, //
+                1, //
                 0,
                 0,
                 "",
                 -16777216,
                 "default_font",
                 12,
-                0
+                0 //
             ),
             0.0f,
             0.0f,
@@ -120,23 +120,67 @@ class XmlLayoutGenerator(
                 "TextView" -> {
                     attribute("android:text", view.text.text)
                     attribute("android:textSize", "${view.text.textSize}sp")
+
+                    if (view.text.line != 1)
+                        attribute("android:lines", view.text.line.toString())
+
+                    if (view.text.singleLine != 0)
+                        attribute("android:singleLine", "true")
+
+                    if (view.text.textColor != -16777216)
+                        attribute("android:textColor", "#%06X".format(view.text.textColor))
+
+                    if (view.text.textFont != "default_font")
+                        attribute("android:fontFamily", view.text.textFont)
                 }
 
                 "ImageView" -> {
                     if (view.image.resName != null) attribute("android:src", view.image.resName)
                     attribute("android:scaleType", underscoresToCapital(view.image.scaleType))
                 }
+
+                "ProgressBar" -> {
+                    if (view.indeterminate == "false") {
+                        attribute("android:max", view.max.toString())
+                        attribute("android:progress", view.progress.toString())
+                    }
+
+                    if (view.progressStyle != "?android:progressBarStyle")
+                        attribute("style", view.progressStyle)
+                }
+
+                "EditText" -> {
+                    attribute("android:textSize", "${view.text.textSize}sp")
+
+                    if (view.text.hint != "")
+                        attribute("android:hint", view.text.hint)
+
+                    if (view.text.hintColor != -10453621)
+                        attribute("android:textColorHint", "#%06X".format(view.text.hintColor))
+
+                    if (view.text.line != 1)
+                        attribute("android:lines", view.text.line.toString())
+
+                    if (view.text.singleLine != 0)
+                        attribute("android:singleLine", "true")
+
+                    if (view.text.textColor != -16777216)
+                        attribute("android:textColor", "#%06X".format(view.text.textColor))
+
+                    if (view.text.textFont != "default_font")
+                        attribute("android:fontFamily", view.text.textFont)
+                }
             }
 
             if (view.scaleX != 1f) attribute("android:scaleX", "${view.scaleX}")
-            if (view.scaleY != 1f) attribute("android:scaleY", "${view.scaleX}")
+            if (view.scaleY != 1f) attribute("android:scaleY", "${view.scaleY}")
             if (view.enabled == 0) attribute("android:enabled", "false")
             if (view.alpha != 1.0f) attribute("android:alpha", "${view.alpha}")
             if (view.checked != 0) attribute("android:checked", "true")
             if (view.clickable != 1) attribute("android:clickable", "false")
             if (view.enabled != 1) attribute("android:enabled", "false")
             if (view.image.rotate != 0) attribute("android:rotation", "${view.image.rotate}")
-            if (view.indeterminate != "false") attribute("android:rotation", "true")
+            if (view.indeterminate != "false") attribute("android:indeterminate", "true")
 
             if (view.layout.backgroundColor != 16777215) attribute("android:backgroundColor", "#%06X".format(view.layout.backgroundColor))
             if (view.layout.backgroundResource != null) attribute("android:backgroundResource", "${view.layout.backgroundResource}")
@@ -161,6 +205,9 @@ class XmlLayoutGenerator(
 
             if (view.layout.weight != 0) attribute("android:weight", "${view.layout.weight}")
             if (view.layout.weightSum != 0) attribute("android:weightSum", "${view.layout.weightSum}")
+
+            if (view.translationX != 1f) attribute("android:scaleX", "${view.translationX}")
+            if (view.translationY != 1f) attribute("android:scaleY", "${view.translationY}")
 
             for (child in node.childs) {
                 addNode(generateXml(child))
