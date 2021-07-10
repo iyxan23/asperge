@@ -40,20 +40,22 @@ object CLIParser {
 
             "decrypt" -> {
                 val filename = args[1]
-                var output = filename + "_decrypted"
+                var output = ""
                 var force = false
+                var printToStdout = false
 
                 val arguments = ArgumentsParser(
-                    listOf("-f", "--force"),
+                    listOf("-f", "--force", "--stdout", "-s"),
                     listOf("--out")
                 ).parse(args.subList(2, args.size))
 
                 arguments.forEach {
                     if (it.first == "--out") output = it.second!!
+                    else if (it.first == "--stdout" || it.first == "-s") printToStdout = true
                     else if (it.first == "-f" || it.first == "--force") force = true
                 }
 
-                return DecryptOptions(filename, output, force)
+                return DecryptOptions(filename, output, force, printToStdout)
             }
 
             "generate", "gen" -> {
@@ -169,11 +171,14 @@ object CLIParser {
                         `decrypt` Decrypts a sketchware-encrypted file
                     
                     Syntax:
-                        decrypt (file) [--out path/to/file] [-f | --force]
+                        decrypt (file) [--out path/to/file] [-f | --force] [-s | --stdout]
                     
                     Usage:
                         asperge decrypt file
                             : Decrypts file and save it into file_decrypted
+                            
+                        asperge decrypt file --stdout
+                            : Decrypts file and print it to stdout
                             
                         asperge decrypt file --out my_file
                             : Decrypts file and save it into my_file
@@ -233,6 +238,7 @@ object CLIParser {
         val filePath: String,
         val out: String,
         val force: Boolean,
+        val printToStdout: Boolean
     ) : Options()
 
     class GenerateOptions(

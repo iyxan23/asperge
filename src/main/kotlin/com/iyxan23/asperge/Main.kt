@@ -25,37 +25,41 @@ fun main(args: Array<String>) {
         is CLIParser.DecryptOptions -> {
             val out = File(options.out)
 
-            if (out.exists() && out.isFile) {
-                // Check if the user didn't specify the -f flag
-                if (!options.force) {
-                    print("File $out already exists, override (use -f to override without questioning) [Y/N]? ")
+            if (!options.printToStdout) {
+                if (out.exists() && out.isFile) {
+                    // Check if the user didn't specify the -f flag
+                    if (!options.force) {
+                        print("File $out already exists, override (use -f to override without questioning) [Y/N]? ")
 
-                    val answer = readLine()
+                        val answer = readLine()
 
-                    if (answer != null) {
-                        if (answer.toLowerCase() != "y") return
-                        else {
-                            println("Got an invalid answer $answer, exiting")
+                        if (answer != null) {
+                            if (answer.toLowerCase() != "y") return
+                            else {
+                                println("Got an invalid answer $answer, exiting")
+                                return
+                            }
+
+                        } else {
+                            println("No input, exiting")
                             return
                         }
-
                     } else {
-                        println("No input, exiting")
-                        return
+                        out.writeText("")
                     }
+
                 } else {
-                    out.writeText("")
+                    out.createNewFile()
                 }
 
-            } else {
-                out.createNewFile()
-            }
-
-            out.writeText(
-                Decryptor.decrypt(
-                    File(options.filePath).readBytes()
+                out.writeText(
+                    Decryptor.decrypt(
+                        File(options.filePath).readBytes()
+                    )
                 )
-            )
+            } else {
+                println(Decryptor.decrypt(File(options.filePath).readBytes()))
+            }
         }
 
         is CLIParser.GenerateOptions -> {
@@ -102,9 +106,10 @@ fun main(args: Array<String>) {
                     println("$out already exists as a ${if (out.isFile) "file" else "folder"}")
                     return
                 }
-            }
 
-            out.mkdir()
+                // mkdir the output folder if the user doesn't want to print to stdout
+                out.mkdir()
+            }
 
             if (!path.exists()) {
                 println("$path doesn't exist, make sure you spelled it correctly")
