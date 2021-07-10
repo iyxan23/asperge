@@ -90,7 +90,7 @@ class NewJavaGenerator(
             addCode("// Moreblocks")
             functions.forEach {
                 val blocks = functionsBlocks[it.name]
-                    ?: throw RuntimeException("Cannot find blocks of moreblock ${it.name} at $activityName")
+                    ?: /* if we can't find the blocks then this moreblock is empty */ return@forEach
 
                 function("private void", "${it.name}(${functionParameters(it.spec)})") {
                     addCode(generateCode(blocks.blocks))
