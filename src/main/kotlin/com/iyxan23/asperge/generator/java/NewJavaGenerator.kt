@@ -132,6 +132,10 @@ class NewJavaGenerator(
         // First, we need to parse the section
         val blocks = BlocksParser(rawBlocks).parse()
 
+        return generateCode(blocks)
+    }
+
+    private fun generateCode(blocks: List<Block>): String {
         return StringBuilder().apply {
             blocks.forEach { block -> appendLine(generateCodeFromBlock(block)) }
         }.toString().trim()
@@ -140,10 +144,22 @@ class NewJavaGenerator(
     private fun generateCodeFromBlock(block: Block, addSemicolon: Boolean = true): String {
         val parameters = generateParametersCode(block.parameters)
 
+        var firstSubstack = ""
+        var secondSubstack = ""
+
+        // Check if these substack(s) exists
+        if (block.firstChildren != null)
+            firstSubstack = generateCode(block.firstChildren)
+
+        if (block.secondChildren != null)
+            secondSubstack = generateCode(block.secondChildren)
+
         return BlocksDictionary.generateCode(
             block.logicBlock.opCode,
             parameters,
             block.logicBlock.spec,
+            firstSubstack,
+            secondSubstack,
             addSemicolon
         )
     }

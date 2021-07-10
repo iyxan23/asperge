@@ -162,7 +162,7 @@ public class %s extends AppCompatActivity {
                 }
             }
 
-            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams, block.spec, addSemicolon))
+            result.appendLine(BlocksDictionary.generateCode(block.opCode, parsedParams, block.spec, addSemicolon = addSemicolon))
         }
 
         return result.toString().trim()

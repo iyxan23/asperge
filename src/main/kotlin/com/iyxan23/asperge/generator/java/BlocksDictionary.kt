@@ -3,10 +3,31 @@ package com.iyxan23.asperge.generator.java
 import java.util.regex.Pattern
 
 object BlocksDictionary {
-    fun generateCode(opCode: String, parameters: List<String>, spec: String, addSemicolon: Boolean = true): String {
+    fun generateCode(
+        opCode: String,
+        parameters: List<String>,
+        spec: String,
+        firstSubstack: String = "",
+        secondSubstack: String = "",
+        addSemicolon: Boolean = true
+    ): String {
         if (opCode == "addSourceDirectly") return parameters[0]
+        var addSemicolonMutable = addSemicolon
 
         return (when (opCode) {
+            "if" -> {
+                addSemicolonMutable = false
+                "if (${parameters[0]}) {\n${firstSubstack.prependIndent(" ".repeat(4))}\n}"
+            }
+
+            "ifElse" -> {
+                addSemicolonMutable = false
+                "if (${parameters[0]}) {\n${firstSubstack.prependIndent(" ".repeat(4))}\n} else {\n${secondSubstack.prependIndent(" ".repeat(4))}\n}"
+            }
+
+            "true" -> "true"
+            "false" -> "false"
+
             "getVar" -> spec
             "toString" -> "${parameters[0]}.toString()"
 
@@ -21,7 +42,7 @@ object BlocksDictionary {
 
             else -> "// Unknown opcode $opCode"
 
-        }) + if (addSemicolon) ";" else ""
+        }) + if (addSemicolonMutable) ";" else ""
     }
 
     // Pretty similar to NewJavaGenerator#functionParameters, but this thing only checks if the parameter is a string
