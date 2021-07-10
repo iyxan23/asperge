@@ -24,13 +24,14 @@ class BlocksParser(
         return parseBlocks()
     }
 
-    private fun parseBlocks(end: Int = Int.MAX_VALUE): List<Block> {
+    private fun parseBlocks(): List<Block> {
         val result = ArrayList<Block>()
 
         while (currentBlock != null) {
-            result.add(parseBlock(currentBlock!!))
-
-            if (currentBlock!!.id.toInt() == end) break
+            // we need to keep the reference of the "current" block
+            val block = currentBlock!!.copy()
+            result.add(parseBlock(block))
+            if (block.nextBlock == -1) break
 
             advance()
         }
@@ -44,11 +45,11 @@ class BlocksParser(
         val params = parseParams(block)
 
         if (block.subStack1 != -1) {
-            firstChildren = parseBlocks(block.subStack1)
+            firstChildren = parseBlocks()
 
             if (block.subStack2 != -1) {
                 advance()
-                secondChildren = parseBlocks(block.subStack2)
+                secondChildren = parseBlocks()
             }
         }
 
