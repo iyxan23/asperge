@@ -39,21 +39,17 @@ class BlocksParser(
     }
 
     private fun parseBlock(block: LogicBlock): Block {
-        println("Parsing block ${block.spec} ${block.id}, current index: $index")
         var firstChildren: List<Block>? = null
         var secondChildren: List<Block>? = null
         val params = parseParams(block)
 
         if (block.subStack1 != -1) {
-            println("SUBSTACK1! ${block.subStack1}")
             firstChildren = parseBlocks(block.subStack1)
-            println("DONE SUBSTACK1!")
-        }
 
-        if (block.subStack2 != -1) {
-            println("SUBSTACK2! ${block.subStack2}")
-            secondChildren = parseBlocks(block.subStack2)
-            println("DONE SUBSTACK2!")
+            if (block.subStack2 != -1) {
+                advance()
+                secondChildren = parseBlocks(block.subStack2)
+            }
         }
 
         return Block(block, params, firstChildren, secondChildren)
