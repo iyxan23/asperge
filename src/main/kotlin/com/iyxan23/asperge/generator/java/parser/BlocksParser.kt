@@ -3,33 +3,76 @@ package com.iyxan23.asperge.generator.java.parser
 import com.iyxan23.asperge.sketchware.models.projectfiles.logic.Block as LogicBlock
 
 class BlocksParser(
-    private val blocks: LinkedHashMap<String, LogicBlock>
+    private val rawBlocks: LinkedHashMap<String, LogicBlock>
 ) {
-    fun parse(): List<Block> {
-        return blocks.values.mapNotNull { block ->
-            if (blacklistedIds.contains(block.id)) return@mapNotNull null
-            return@mapNotNull parseBlock(block)
-        }
-    }
+    private var index = 0
+    private var blocks = rawBlocks.values.toList()
+
+    private var currentBlock: LogicBlock? = blocks[index]
 
     private val blacklistedIds = ArrayList<String>()
 
+    private fun advance() {
+        do {
+            index++
+            currentBlock = if (index >= blocks.size) null else blocks[index]
+
+        } while (currentBlock?.let { return@let blacklistedIds.contains(currentBlock!!.id) } == true)
+    }
+
+    fun parse(): List<Block> {
+        return parseBlocks()
+    }
+
+    private fun parseBlocks(end: Int = Int.MAX_VALUE): List<Block> {
+        val result = ArrayList<Block>()
+
+        while (currentBlock != null) {
+            result.add(parseBlock(currentBlock!!))
+
+            if (currentBlock!!.id.toInt() == end) break
+
+            advance()
+        }
+
+        return result
+    }
+
     private fun parseBlock(block: LogicBlock): Block {
-        return Block(block, parseParams(block))
+        println("Parsing block ${block.spec} ${block.id}, current index: $index")
+        var firstChildren: List<Block>? = null
+        var secondChildren: List<Block>? = null
+        val params = parseParams(block)
+
+        if (block.subStack1 != -1) {
+            println("SUBSTACK1! ${block.subStack1}")
+            firstChildren = parseBlocks(block.subStack1)
+            println("DONE SUBSTACK1!")
+        }
+
+        if (block.subStack2 != -1) {
+            println("SUBSTACK2! ${block.subStack2}")
+            secondChildren = parseBlocks(block.subStack2)
+            println("DONE SUBSTACK2!")
+        }
+
+        return Block(block, params, firstChildren, secondChildren)
     }
 
     private fun parseParams(block: LogicBlock): List<Any> {
         return block.parameters.map { param ->
             if (param.startsWith("@")) {
                 val paramBlockId = param.substring(1, param.length)
-                blacklistedIds.add(paramBlockId)
 
-                if (!blocks.containsKey(paramBlockId))
+                if (!rawBlocks.containsKey(paramBlockId))
                     throw RuntimeException(
                         "This project is possibly corrupted, Trying to find the parameter of a block with the id " +
                         "of ${block.id} but can't find one")
 
-                return@map parseBlock(blocks[paramBlockId]!!)
+                blacklistedIds.add(paramBlockId)
+                advance()
+
+                return@map parseBlock(rawBlocks[paramBlockId]!!)
             } else {
 
                 return@map param
