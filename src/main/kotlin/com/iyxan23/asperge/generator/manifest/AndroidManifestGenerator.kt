@@ -4,7 +4,7 @@ import com.iyxan23.asperge.sketchware.models.projectfiles.File
 import com.iyxan23.asperge.sketchware.models.projectfiles.Project
 import org.redundent.kotlin.xml.xml
 
-// TODO: 7/11/21 Add themes and such 
+// TODO: 7/11/21 Add themes and such
 class AndroidManifestGenerator(
     val file: File,
     val project: Project
@@ -18,7 +18,6 @@ class AndroidManifestGenerator(
                 attribute("android:label", project.appName)
 
                 file.activities.forEach { activity ->
-                    println(activity)
                     "activity" {
                         attribute("android:name", ".${activity.fileName.toLowerCase().capitalize()}Activity")
 
