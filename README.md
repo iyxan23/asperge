@@ -10,7 +10,7 @@ So you can generate codes from sketchware projects right on your pc, so you don'
  - [x] Command Line Interface
  - [x] Nested blocks
  - [x] Implement moreblocks
- - [ ] AndroidManifest.xml generation
+ - [x] AndroidManifest.xml generation (partially)
  - [ ] Implement components
  - [ ] `parse` command
  - [ ] Tedious: Expand the keys of XML layout generation
