@@ -131,7 +131,7 @@ fun main(args: Array<String>) {
             if (!path.isFile) {
                 // This is a folder, it might be a decrypted sketchware project, or an encrypted sketchware project
                 // But first, we should check the project structure
-                val requiredFiles = arrayOf("logic", "view", "file", "library", "resources", "project")
+                val requiredFiles = arrayOf("logic", "view", "file", "library", "resource", "project")
 
                 requiredFiles.forEach {
                     if (!File(path, it).exists()) {
