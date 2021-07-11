@@ -76,7 +76,7 @@ class NewJavaGenerator(
             }
 
             if (events.isNotEmpty()) {
-                function("private void", "registerEvents") {
+                function("private void", "registerEvents()") {
                     events.forEach { event -> addCode(generateCodeFromEvent(event)) }
                 }
             }
