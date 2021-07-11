@@ -1,6 +1,7 @@
 package com.iyxan23.asperge
 
 import com.iyxan23.asperge.generator.java.NewJavaGenerator
+import com.iyxan23.asperge.generator.manifest.AndroidManifestGenerator
 import com.iyxan23.asperge.generator.xml.XmlLayoutGenerator
 import com.iyxan23.asperge.sketchware.models.DecryptedRawSketchwareProject
 import com.iyxan23.asperge.sketchware.models.RawSketchwareProject
@@ -74,8 +75,12 @@ fun main(args: Array<String>) {
             val restrictLayouts = options.layouts.isNotEmpty()
 
             // Some checks to make sure that the arguments given are valid
-            if (options.layoutOnly && options.javaOnly) {
-                println("You can only choose one flag between --layout-only and --java-only")
+            if (
+                (options.layoutOnly && options.javaOnly) ||
+                (options.manifestOnly && options.layoutOnly) ||
+                (options.manifestOnly && options.javaOnly)
+            ) {
+                println("You can only choose one flag between --layout-only, --java-only and --manifest-only")
                 return
             }
 
@@ -169,16 +174,33 @@ fun main(args: Array<String>) {
             val layoutFolder = File(out, "res/layout")
             val codeFolder =
                 File(out, "java/${sketchwareProject.project.packageName.replace(".", "/")}/")
+            val manifestFile = File(out, "AndroidManifest.xml")
 
             // Create the folders if we don't print to stdout
             if (!options.printCodeToStdout) {
-                layoutFolder.mkdirs()
-                codeFolder.mkdirs()
+                if (!options.javaOnly   && !options.manifestOnly) layoutFolder.mkdirs()
+                if (!options.layoutOnly && !options.manifestOnly) codeFolder.mkdirs()
+                if (!options.javaOnly   && !options.layoutOnly  ) manifestFile.createNewFile()
             }
 
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////
             // Start generating
             ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+            if (!options.javaOnly && !options.layoutOnly) {
+                val manifest = AndroidManifestGenerator(
+                    sketchwareProject.file,
+                    sketchwareProject.project
+                ).generate()
+
+                if (options.printCodeToStdout) {
+                    println(manifest)
+                } else {
+                    manifestFile.writeText(manifest)
+                }
+            }
+
+            if (options.manifestOnly) return
 
             // Now sort these sections into a map of activities, because every sections are mixed together
             val activities = HashMap<String, ArrayList<BaseLogicSection>>()

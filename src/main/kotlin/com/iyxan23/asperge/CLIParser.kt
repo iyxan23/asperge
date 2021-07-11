@@ -65,12 +65,13 @@ object CLIParser {
 
                 var javaOnly = false
                 var layoutOnly = false
+                var manifestOnly = false
 
                 var activities: List<String> = ArrayList()
                 var layouts: List<String> = ArrayList()
 
                 val arguments = ArgumentsParser(
-                    listOf("--java-only", "--layout-only", "--stdout"),
+                    listOf("--java-only", "--layout-only", "--manifest-only", "--stdout"),
                     listOf("--out", "--layouts", "--activities")
                 ).parse(args.subList(2, args.size))
 
@@ -80,6 +81,7 @@ object CLIParser {
 
                         "--java-only" -> javaOnly = true
                         "--layout-only" -> layoutOnly = true
+                        "--manifest-only" -> manifestOnly = true
 
                         "--activities" -> activities = it.second!!.split(",")
                         "--layouts" -> layouts = it.second!!.split(",")
@@ -88,7 +90,7 @@ object CLIParser {
                     }
                 }
 
-                return GenerateOptions(path, output, javaOnly, layoutOnly, activities, layouts, printCodeToStdout)
+                return GenerateOptions(path, output, javaOnly, layoutOnly, manifestOnly, activities, layouts, printCodeToStdout)
             }
 
             else -> {
@@ -196,7 +198,7 @@ object CLIParser {
                         `generate` Generates java and xml layouts from a sketchware project
                     
                     Syntax:
-                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--stdout] [--out path/to/folder] [--java-only] [--layout-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
+                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--stdout] [--out path/to/folder] [--java-only] [--layout-only] [--manifest-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
                     
                     Usage:
                         asperge gen my_project.sh
@@ -213,6 +215,9 @@ object CLIParser {
                             
                         asperge gen project.sh --java-only
                             : Generates java files ONLY to project/
+                            
+                        asperge gen project.sh --manifest-only
+                            : Generates the AndroidManifest.xml file to project/
                             
                         asperge gen project.sh --java-only --activities MainActivity
                             : Generates MainActivity java file ONLY to project/
@@ -246,6 +251,7 @@ object CLIParser {
         val out: String,
         val javaOnly: Boolean,
         val layoutOnly: Boolean,
+        val manifestOnly: Boolean,
         val activities: List<String>,
         val layouts: List<String>,
         val printCodeToStdout: Boolean,
