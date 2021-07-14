@@ -213,7 +213,7 @@ class NewJavaGenerator(
     }
 
     private fun functionParameters(spec: String): String {
-        /* %(type).(name1)[.(name2)]
+        /* %(type).(name1)(.(name2))?
          * if type is "m" then name = name2
          * else name = name1
          *
@@ -221,12 +221,12 @@ class NewJavaGenerator(
          * myMoreblock %b.myBoolean %s.myString %m.textview.aTextView %m.file.fileComponent
          */
 
-        val matcher = Pattern.compile("%(\\w)\\.(\\w+)[.(\\w+)]?").matcher(spec)
+        val matcher = Pattern.compile("%(\\w)\\.(\\w+)(.(\\w+))?").matcher(spec)
 
         return ArrayList<String>().apply {
             while (matcher.find()) {
                 val type = matcher.group(1)
-                val name = matcher.group(if (type != "m") 2 else 3)
+                val name = matcher.group(if (type != "m") 2 else 4)
 
                 if (type != "m") {
                     add("${parameterType(type)} _$name")
