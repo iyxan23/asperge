@@ -45,6 +45,7 @@ class BlocksParser(
         val params = parseParams(block)
 
         if (block.subStack1 != -1) {
+            advance()
             firstChildren = parseBlocks()
 
             if (block.subStack2 != -1) {
@@ -67,7 +68,6 @@ class BlocksParser(
                         "of ${block.id} but can't find one")
 
                 blacklistedIds.add(paramBlockId)
-                advance()
 
                 return@map parseBlock(rawBlocks[paramBlockId]!!)
             } else {
