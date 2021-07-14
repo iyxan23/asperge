@@ -71,7 +71,7 @@ object CLIParser {
                 var layouts: List<String> = ArrayList()
 
                 val arguments = ArgumentsParser(
-                    listOf("--java-only", "--layout-only", "--manifest-only", "--stdout"),
+                    listOf("--java-only", "--layout-only", "--manifest-only", "--stdout", "-s"),
                     listOf("--out", "--layouts", "--activities")
                 ).parse(args.subList(2, args.size))
 
@@ -86,7 +86,7 @@ object CLIParser {
                         "--activities" -> activities = it.second!!.split(",")
                         "--layouts" -> layouts = it.second!!.split(",")
 
-                        "--stdout" -> printCodeToStdout = true
+                        "--stdout", "-s" -> printCodeToStdout = true
                     }
                 }
 
@@ -173,7 +173,7 @@ object CLIParser {
                         `decrypt` Decrypts a sketchware-encrypted file
                     
                     Syntax:
-                        decrypt (file) [--out path/to/file] [-f | --force] [-s | --stdout]
+                        decrypt (file) [--out path/to/file] [-f | --force] [--stdout | -s]
                     
                     Usage:
                         asperge decrypt file
@@ -198,7 +198,7 @@ object CLIParser {
                         `generate` Generates java and xml layouts from a sketchware project
                     
                     Syntax:
-                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--stdout] [--out path/to/folder] [--java-only] [--layout-only] [--manifest-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
+                        (generate | gen) (project_backup_file | folder_of_sketchware_project) [--stdout | -s] [--out path/to/folder] [--java-only] [--layout-only] [--manifest-only] [--activities (ExampleActivity,Example2Activity)] [--layouts (main,example)]
                     
                     Usage:
                         asperge gen my_project.sh
