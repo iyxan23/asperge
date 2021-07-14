@@ -28,3 +28,6 @@ So you can generate codes from sketchware projects right on your pc, and you won
  - [ ] Tedious: Expand the keys of XML layout generation
  - [ ] Tedious: Need more opcodes
  - [ ] Tedious: Need more events
+
+### Not necessary but it'd be cool
+ - [ ] Use coroutines
